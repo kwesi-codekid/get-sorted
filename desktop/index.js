@@ -55,8 +55,6 @@ const NOTIFICATION_BODY = "Notification from the Main process";
 //   }).show();
 // }
 
-// app.whenReady().then(createWindow).then(showNotification);
-
 /** @param {unknown} error */
 function getErrorStack(error) {
   return error instanceof Error ? error.stack || error.message : String(error);
