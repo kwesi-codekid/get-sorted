@@ -9,9 +9,11 @@ import {
   useNavigation,
 } from "@remix-run/react";
 import styles from "./styles.css";
-import { NextUIProvider, Progress } from "@nextui-org/react";
+import { NextUIProvider } from "@nextui-org/react";
 
-export const meta: MetaFunction = () => [{ title: "New Remix App" }];
+export const meta: MetaFunction = () => [
+  { title: "GetSorted Helpdesk System" },
+];
 
 export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 
@@ -29,11 +31,6 @@ export default function App() {
       </head>
       <body className="">
         <NextUIProvider>
-          <div className="h-1 bg-transparent">
-            {navigation.state === "loading" && (
-              <Progress isIndeterminate color="primary" size="sm" radius="sm" />
-            )}
-          </div>
           <Outlet />
           <ScrollRestoration />
           <Scripts />
