@@ -12,6 +12,7 @@ async function createWindow(url) {
     center: true,
     width: 1280,
     height: 768,
+    autoHideMenuBar: true,
   });
   await win.loadURL(url);
   win.show();

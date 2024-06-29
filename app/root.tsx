@@ -8,6 +8,7 @@ import {
   ScrollRestoration,
   useNavigation,
 } from "@remix-run/react";
+import { ThemeProvider as NextThemesProvider } from "next-themes";
 import styles from "./styles.css";
 import { NextUIProvider } from "@nextui-org/react";
 
@@ -31,7 +32,9 @@ export default function App() {
       </head>
       <body className="">
         <NextUIProvider>
-          <Outlet />
+          <NextThemesProvider attribute="class" defaultTheme="light">
+            <Outlet />
+          </NextThemesProvider>
           <ScrollRestoration />
           <Scripts />
           <LiveReload />
