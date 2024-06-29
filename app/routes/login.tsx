@@ -1,11 +1,16 @@
 import { Button } from "@nextui-org/react";
 import { ActionFunction } from "@remix-run/node";
-import { Form, useNavigation } from "@remix-run/react";
+import { Form, useActionData, useNavigation } from "@remix-run/react";
 import PasswordInput from "~/components/inputs/password";
 import TextInput from "~/components/inputs/text";
+import { ActionDataInterface } from "~/utils/types";
 
 export default function Login() {
   const navigation = useNavigation();
+
+  //   handle form actions
+  const actionData = useActionData<typeof action>();
+
   return (
     <div className="h-screen grid grid-cols-2 gap-8">
       {/* login form */}
@@ -20,8 +25,12 @@ export default function Login() {
             id="login-form"
             className="pr-12 flex flex-col gap-6"
           >
-            <TextInput label="Email" name="email" />
-            <PasswordInput label="Password" name="password" />
+            <TextInput label="Email" name="email" actionData={actionData} />
+            <PasswordInput
+              label="Password"
+              name="password"
+              actionData={actionData}
+            />
             <Button
               type="submit"
               form="login-form"
@@ -47,7 +56,16 @@ export const action: ActionFunction = async ({ request }) => {
 
   console.log(formValues);
 
+  const errors: ActionDataInterface = {
+    status: "error",
+    message: "Invalid inputs provided",
+    errors: [
+      { field: "email", message: "Invalid email provided" },
+      { field: "password", message: "Invalid password provided" },
+    ],
+  };
+
   return {
-    formValues,
+    errors,
   };
 };

@@ -1,11 +1,23 @@
 import { Input, InputProps } from "@nextui-org/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { EyeFilled, EyeSlashFilled } from "../icons/eye";
+import { ActionDataInterface } from "~/utils/types";
 
-export default function PasswordInput(props: InputProps) {
+export default function PasswordInput({
+  actionData,
+  ...props
+}: InputProps & { actionData?: any }) {
   const [isVisible, setIsVisible] = useState(false);
 
   const toggleVisibility = () => setIsVisible(!isVisible);
+
+  const [inputActionData, setInputActionData] = useState<typeof actionData>();
+
+  useEffect(() => {
+    if (actionData) {
+      setInputActionData(actionData.errors);
+    }
+  }, [actionData]);
   return (
     <Input
       color="primary"
@@ -30,6 +42,18 @@ export default function PasswordInput(props: InputProps) {
         label: "font-sen font-semibold text-slate-700 dark:text-white",
         base: "shadow-none font-nunito",
       }}
+      isInvalid={
+        inputActionData?.errors &&
+        inputActionData?.errors.find((input: any) => input.field === props.name)
+          ? true
+          : false
+      }
+      errorMessage={
+        inputActionData?.errors &&
+        inputActionData?.errors.find((input: any) => input.field === props.name)
+          ?.message
+      }
+      onChange={() => setInputActionData(undefined)}
       {...props}
     />
   );
