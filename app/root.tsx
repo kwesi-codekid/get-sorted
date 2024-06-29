@@ -6,15 +6,19 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
+  useNavigation,
 } from "@remix-run/react";
 import styles from "./styles.css";
-import { NextUIProvider } from "@nextui-org/react";
+import { NextUIProvider, Progress } from "@nextui-org/react";
 
 export const meta: MetaFunction = () => [{ title: "New Remix App" }];
 
 export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 
 export default function App() {
+  const navigation = useNavigation();
+  console.log(navigation.state);
+
   return (
     <html lang="en">
       <head>
@@ -25,6 +29,11 @@ export default function App() {
       </head>
       <body>
         <NextUIProvider>
+          <div className="h-1 bg-transparent">
+            {navigation.state === "loading" && (
+              <Progress isIndeterminate color="primary" size="sm" radius="sm" />
+            )}
+          </div>
           <Outlet />
           <ScrollRestoration />
           <Scripts />
