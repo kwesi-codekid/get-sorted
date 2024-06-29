@@ -27,7 +27,7 @@ export default function App() {
         <Meta />
         <Links />
       </head>
-      <body>
+      <body className="">
         <NextUIProvider>
           <div className="h-1 bg-transparent">
             {navigation.state === "loading" && (

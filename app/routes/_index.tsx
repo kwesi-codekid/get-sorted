@@ -1,48 +1,40 @@
-import { Button, Progress } from "@nextui-org/react";
-import { Link, useLoaderData, useNavigate } from "@remix-run/react";
-import { useState } from "react";
-import electron from "~/electron.server";
+// import { Button, Progress } from "@nextui-org/react";
+// import { Link, useLoaderData, useNavigate } from "@remix-run/react";
+// import { useState } from "react";
+// import electron from "~/electron.server";
+import { Progress } from "@nextui-org/react";
+import supportIllustration from "~/assets/illustrations/tech-support.svg";
 
 export default function Index() {
-  const navigate = useNavigate();
-  const data = useLoaderData<typeof loader>();
-
-  const [loading, setLoading] = useState<boolean>(false);
-  const simulateNetworkLatency = () => {
-    setLoading(true);
-    // try {
-    //   setLoading(true);
-    //   const timeout = setTimeout(() => {
-    //     console.log("dome");
-    //   }, 3000);
-
-    //   clearTimeout(timeout);
-    // } catch (error) {
-    //   console.log(error);
-    // } finally {
-    //   setLoading(false);
-    //   navigate("/test");
-    // }
-  };
   return (
-    <main>
-      <h1>Welcome to Remix</h1>
-      <p>User data path: {data.userDataPath}</p>
-      <Button
-        variant="flat"
-        size="sm"
-        color="primary"
-        isLoading={loading}
-        onClick={() => navigate("/test")}
-      >
-        Go to test
-      </Button>
+    <main className="h-[99vh] w-full flex items-center justify-center flex-col gap-5 overflow-hidden">
+      <img
+        src={supportIllustration}
+        alt="support illustration"
+        className="w-80"
+      />
+
+      <h1 className="font-montserrat font-extrabold text-7xl text-blue-600">
+        GetSorted
+      </h1>
+      <h3 className="font-nunito text-lg text-slate-500">
+        Premium Support Helpdesk Software
+      </h3>
+
+      <div className="w-72">
+        <Progress
+          aria-labelledby="splash screen loader"
+          isIndeterminate
+          color="primary"
+          size="sm"
+        />
+      </div>
     </main>
   );
 }
 
-export function loader() {
-  return {
-    userDataPath: electron.app.getPath("userData"),
-  };
-}
+// export function loader() {
+//   return {
+//     userDataPath: electron.app.getPath("userData"),
+//   };
+// }
