@@ -54,8 +54,8 @@ export default function Login() {
             />
             <div className="flex items-center justify-end">
               <Link
-                onPress={() => navigate("/reset password")}
-                className="font-nunito text-right"
+                onPress={() => navigate("/admin")}
+                className="font-nunito text-right cursor-pointer"
               >
                 Forgot password?
               </Link>
