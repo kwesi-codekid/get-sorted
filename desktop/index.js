@@ -1,5 +1,5 @@
 const { initRemix } = require("remix-electron");
-const { app, BrowserWindow, dialog } = require("electron");
+const { app, BrowserWindow, dialog, Notification } = require("electron");
 const path = require("node:path");
 
 /** @type {BrowserWindow | undefined} */
@@ -36,6 +36,7 @@ app.on("ready", () => {
       const url = await initRemix({
         serverBuild: path.join(__dirname, "../build/index.js"),
       });
+      // showNotification();
       await createWindow(url);
     } catch (error) {
       dialog.showErrorBox("Error", getErrorStack(error));
@@ -43,6 +44,16 @@ app.on("ready", () => {
     }
   })();
 });
+
+const NOTIFICATION_TITLE = "Basic Notification";
+const NOTIFICATION_BODY = "Notification from the Main process";
+
+// function showNotification() {
+//   new Notification({
+//     title: NOTIFICATION_TITLE,
+//     body: NOTIFICATION_BODY,
+//   }).show();
+// }
 
 /** @param {unknown} error */
 function getErrorStack(error) {
