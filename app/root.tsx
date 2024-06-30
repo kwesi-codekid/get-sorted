@@ -19,8 +19,8 @@ export const meta: MetaFunction = () => [
 export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 
 export default function App() {
-  const navigation = useNavigation();
-  console.log(navigation.state);
+  // const navigation = useNavigation();
+  // console.log(navigation.state);
 
   return (
     <html lang="en">
