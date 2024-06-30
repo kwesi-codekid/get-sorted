@@ -3,11 +3,21 @@
 // import { useState } from "react";
 // import electron from "~/electron.server";
 import { Progress } from "@nextui-org/react";
+import { useNavigate } from "@remix-run/react";
+import { useEffect } from "react";
 import supportIllustration from "~/assets/illustrations/tech-support.svg";
 
-export default function Index() {
+export default function SplashScreen() {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    setTimeout(() => {
+      navigate("/admin");
+    }, 500);
+  }, []);
+
   return (
-    <main className="h-[99vh] w-full flex items-center justify-center flex-col gap-5 overflow-hidden">
+    <main className="h-screen w-full flex items-center justify-center flex-col gap-5 overflow-hidden">
       <img
         src={supportIllustration}
         alt="support illustration"
