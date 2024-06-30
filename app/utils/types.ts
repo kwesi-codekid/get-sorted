@@ -5,6 +5,7 @@ export type ActionDataInterface =
       errors?: { field: string; message: string }[];
     }
   | undefined;
+
 export type AdminNavLinkInterface = {
   path: string;
   icon: JSX.Element;
