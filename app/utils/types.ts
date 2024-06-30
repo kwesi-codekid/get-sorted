@@ -56,7 +56,7 @@ export type DepartmentInterface = {
   isParent?: boolean;
 };
 
-export type MedicalRequestInterface = {
+export type ComplaintInterface = {
   _id: string;
   requestedFor: UserInterface;
   requestedBy: UserInterface;
@@ -71,89 +71,10 @@ export type MedicalRequestInterface = {
   updatedAt: Date;
 };
 
-export type VitalInterface = {
-  _id?: string;
-  visit?: VitalInterface;
-  temperature?: string;
-  pulse?: string;
-  respiration?: string;
-  sp02?: string;
-  weight?: string;
-  height?: string;
-  bmi?: string;
-  bp?: string;
-  createdAt?: Date;
-  updatedAt?: Date;
-};
-
-export type VisitInterface = {
-  _id: string;
-  medicalRequest: MedicalRequestInterface;
-  staff: UserInterface;
-  requestType: "walk-in" | "request" | "emergency" | "schedule";
-  status: "pending" | "completed";
-  visitRecords: {
-    medicalRequest: MedicalRequestInterface;
-    visitType: "initial-visit" | "review";
-    visited: Boolean;
-    nextAppointment: Date;
-
-    vitals: VitalInterface;
-    consultation: VitalInterface;
-    labs: VitalInterface;
-
-    createdAt: Date;
-    updatedAt: Date;
-  }[];
-  createdAt: Date;
-  updatedAt: Date;
-};
-
-export type ConsultationInterface = {
-  _id: string;
-  visit: VisitInterface;
-  consultation: string;
-  complaints: string;
-  investigation: string;
-  disposition: string;
-  treatment: string;
-  diagnosis: string[];
-  workStatus: string[];
-  excuseDutyDuration: number;
-  reviewDate: Date;
-  referredTo: string;
-  detained: boolean;
-  notes: string;
-  createdAt: Date;
-  updatedAt: Date;
-};
-
-export type ReferralFeedbackInterface = {
-  _id: string;
-  visit: VisitInterface;
-  diagnosis: string;
-  treatment: string;
-  followUpPlan: string;
-};
-
 export type EmailInterface = {
   _id: string;
   to: string;
   subject: string;
   text: string;
   html: string;
-};
-
-export type LabRequestInterface = {
-  _id: string;
-  visit: VisitInterface;
-  requestedBy: UserInterface;
-  staff: UserInterface;
-  labTests: {
-    test: string;
-    result: string;
-  }[];
-  status: "pending" | "completed";
-  createdAt: Date;
-  updatedAt: Date;
 };
