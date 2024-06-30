@@ -8,7 +8,7 @@ import {
   TableHeader,
 } from "@nextui-org/react";
 
-import noDataIllustration from "~/assets/illustrations/window-no-data.svg";
+import noDataIllustration from "~/assets/illustrations/no-data.svg";
 
 const CustomTable = ({
   columns,
@@ -55,7 +55,7 @@ const CustomTable = ({
           loadingState={loadingState}
           loadingContent={<Spinner />}
           emptyContent={
-            <div className="md:!h-[63vh] h-[60vh] flex flex-col gap-8 items-center justify-center">
+            <div className="md:!h-[65vh] h-[60vh] flex flex-col gap-8 items-center justify-center">
               <img src={noDataIllustration} alt="No data" className="w-1/3" />
               <p className="text-center text-slate-500 dark:text-slate-400 font-montserrat font-semibold text-lg">
                 No data available

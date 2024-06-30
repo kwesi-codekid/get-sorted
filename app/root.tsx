@@ -35,10 +35,10 @@ export default function App() {
           <NextThemesProvider attribute="class" defaultTheme="light">
             <Outlet />
           </NextThemesProvider>
-          <ScrollRestoration />
-          <Scripts />
-          <LiveReload />
         </NextUIProvider>
+        <ScrollRestoration />
+        <Scripts />
+        <LiveReload />
       </body>
     </html>
   );
