@@ -6,6 +6,7 @@ import {
 } from "@remix-run/node";
 import bcrypt from "bcryptjs";
 import User from "~/models/User";
+import { commitFlashSession, getFlashSession } from "~/utils/flash-session";
 // import { commitFlashSession, getFlashSession } from "~/flash-session";
 import generateOTP from "~/utils/generateOTP";
 import sendSMS from "~/utils/sendSMS";
@@ -296,9 +297,10 @@ export default class UserController {
     const valid = await bcrypt.compare(password, user.password);
 
     if (!valid) {
-      session.flash("message", {
-        title: "Invalid Credentials",
+      session.flash("alert", {
+        title: "Error!",
         status: "error",
+        message: "Invalid Credentials",
       });
       return redirect(`/login`, {
         headers: {
