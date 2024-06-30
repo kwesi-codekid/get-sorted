@@ -33,7 +33,7 @@ export default function NotificationDropdown({
           className="!bg-transparent"
           disableRipple
         >
-          <Badge content="" color="danger">
+          <Badge content="" color="danger" isDot>
             <BellFilledIcon className="size-5 text-white" />
           </Badge>
         </Button>
