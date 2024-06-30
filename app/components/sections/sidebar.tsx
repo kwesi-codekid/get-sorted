@@ -44,6 +44,7 @@ export default function Sidebar({
         {navLinks.map((link, index) => (
           <NavLink
             to={link.path}
+            end={true}
             key={index}
             className={({ isActive }) =>
               `font-nunito rounded-xl ${
