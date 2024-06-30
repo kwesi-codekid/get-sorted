@@ -1,18 +1,18 @@
 import { redirect } from "@remix-run/node";
-import type { MedicalRequestInterface, VisitInterface } from "../utils/types";
-import { getFlashSession } from "~/flash-session";
+// import type { MedicalRequestInterface, VisitInterface } from "../utils/types";
+// import { getFlashSession } from "~/flash-session";
 import MedicalRequest from "~/models/MedicalRequest";
 import UserController from "./UserController";
 import User from "~/models/User";
 import Visit from "~/models/Visit";
-import sendEmail from "~/utils/sendEmail";
-import {
-  generateApprovalEmail,
-  generateDeclinedRequestNotification,
-  generateMedicalOfficerAprrovedRequestNotification,
-  generateNewTreatmentNotification,
-  generateReviewNotificationEmail,
-} from "~/data/email-templates";
+// import sendEmail from "~/utils/sendEmail";
+// import {
+//   generateApprovalEmail,
+//   generateDeclinedRequestNotification,
+//   generateMedicalOfficerAprrovedRequestNotification,
+//   generateNewTreatmentNotification,
+//   generateReviewNotificationEmail,
+// } from "~/data/email-templates";
 import Email from "~/models/Email";
 
 export default class ComplaintController {

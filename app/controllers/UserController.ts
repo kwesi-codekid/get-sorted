@@ -6,7 +6,7 @@ import {
 } from "@remix-run/node";
 import bcrypt from "bcryptjs";
 import User from "~/models/User";
-import { commitFlashSession, getFlashSession } from "~/flash-session";
+// import { commitFlashSession, getFlashSession } from "~/flash-session";
 import generateOTP from "~/utils/generateOTP";
 import sendSMS from "~/utils/sendSMS";
 
@@ -204,7 +204,7 @@ export default class UserController {
 
       // send otp here
       const smsRess = await sendSMS({
-        smsText: `Your verification code is ${otp} - Adamus IT`,
+        smsText: `Your verification code is ${otp} - GetSorted`,
         recipient: phone,
       });
 
