@@ -138,7 +138,7 @@ export const loader: LoaderFunction = ({ request }) => {
 
   console.log({ page, search_term });
 
-  throw new Error("error");
+  //throw new Error("error");
 
   return {
     page,
