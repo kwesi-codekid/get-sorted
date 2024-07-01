@@ -1,10 +1,11 @@
-import { Input, InputProps } from "@nextui-org/react";
-import { useEffect, useState } from "react";
+import { Select, SelectProps } from "@nextui-org/react";
+import { useState, useEffect } from "react";
 
-export default function TextInput({
+const CustomSelect = ({
   actionData,
+  children,
   ...props
-}: InputProps & { actionData?: any }) {
+}: SelectProps & { actionData?: any; children: any }) => {
   const [inputActionData, setInputActionData] = useState<typeof actionData>();
 
   useEffect(() => {
@@ -12,16 +13,19 @@ export default function TextInput({
       setInputActionData(actionData.errors);
     }
   }, [actionData]);
+
   return (
-    <Input
+    <Select
+      className="font-nunito text-lg"
+      classNames={{
+        label:
+          "text-sm md:text-base font-medium font-sen text-slate-800 dark:text-slate-100",
+        popoverContent: "bg-white dark:bg-slate-900 font-nunito",
+      }}
+      variant="bordered"
       color="primary"
       labelPlacement="outside"
       placeholder=" "
-      variant="bordered"
-      classNames={{
-        label: "font-sen font-semibold text-slate-700 dark:text-white",
-        base: "shadow-none font-nunito",
-      }}
       isInvalid={
         inputActionData?.errors &&
         inputActionData?.errors.find((input: any) => input.field === props.name)
@@ -33,8 +37,12 @@ export default function TextInput({
         inputActionData?.errors.find((input: any) => input.field === props.name)
           ?.message
       }
-      onChange={() => setInputActionData(undefined)}
       {...props}
-    />
+      onChange={() => setInputActionData(undefined)}
+    >
+      {children}
+    </Select>
   );
-}
+};
+
+export default CustomSelect;

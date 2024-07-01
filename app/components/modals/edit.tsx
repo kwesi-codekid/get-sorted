@@ -8,7 +8,7 @@ import {
 } from "@nextui-org/react";
 import { Form, useNavigation, useSubmit } from "@remix-run/react";
 
-const CreateRecordModal = ({
+const EditRecordModal = ({
   isOpen,
   onOpenChange,
   onCloseModal,
@@ -132,4 +132,4 @@ const CreateRecordModal = ({
   );
 };
 
-export default CreateRecordModal;
+export default EditRecordModal;
