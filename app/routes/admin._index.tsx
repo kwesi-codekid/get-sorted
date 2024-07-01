@@ -13,8 +13,8 @@ export default function AdminDashboard() {
         <div className="flex flex-col gap-4">
           {/* stats card */}
           <div className="grid grid-cols-2 gap-4">
-            {[1, 2].map((idx) => (
-              <IconCard title={data[idx]?.title as string}>
+            {[1, 2].map((idx, index) => (
+              <IconCard key={index} title={data[idx]?.title as string}>
                 <p className="font-nunito text-2xl font-semibold">
                   {data[idx]?.value}
                 </p>
@@ -22,8 +22,8 @@ export default function AdminDashboard() {
             ))}
           </div>
           <div className="grid grid-cols-3 gap-4">
-            {data.map((data) => (
-              <IconCard title={data.title}>
+            {data.map((data, index) => (
+              <IconCard key={index} title={data.title}>
                 <p className="font-nunito text-2xl font-semibold">
                   {data.value}
                 </p>

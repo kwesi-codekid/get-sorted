@@ -24,7 +24,7 @@ export default function AdminLayout() {
 
       {/* page content */}
       <div className="flex-1">
-        <Header pageTitle="Dashboard" />
+        <Header navLinks={adminNavLinks} basePath={"/admin"} />
         <div className="-mt-10 px-5 h-[90vh]">
           <Outlet />
         </div>

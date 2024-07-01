@@ -12,7 +12,7 @@ export default function SplashScreen() {
 
   useEffect(() => {
     setTimeout(() => {
-      navigate("/login");
+      navigate("/admin/users");
     }, 500);
   }, []);
 

@@ -44,6 +44,7 @@ export default function Sidebar({
         {navLinks.map((link, index) => (
           <NavLink
             to={link.path}
+            end={true}
             key={index}
             className={({ isActive }) =>
               `font-nunito rounded-xl ${
@@ -57,7 +58,7 @@ export default function Sidebar({
           >
             <p
               className={`${
-                !isExpanded ? "text-lg" : "text-sm"
+                !isExpanded ? "text-lg" : "text-base"
               } transition-all duration-400`}
             >
               {link.icon}
