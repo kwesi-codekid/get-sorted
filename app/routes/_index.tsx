@@ -3,18 +3,40 @@
 // import { useState } from "react";
 // import electron from "~/electron.server";
 import { Progress } from "@nextui-org/react";
-import { useNavigate } from "@remix-run/react";
+import { LoaderFunction, json, redirect } from "@remix-run/node";
+import { useLoaderData, useNavigate } from "@remix-run/react";
 import { useEffect } from "react";
 import supportIllustration from "~/assets/illustrations/tech-support.svg";
+import { fetchCurrentUser } from "~/data/api/user";
+import { commitSession, getSession } from "~/electron.server";
+import { UserInterface } from "~/utils/types";
 
 export default function SplashScreen() {
   const navigate = useNavigate();
+  const token = useLoaderData<typeof loader>();
 
   useEffect(() => {
-    setTimeout(() => {
-      navigate("/admin/users");
-    }, 500);
-  }, []);
+    const fetchUser = async () => {
+      if (!token) {
+        navigate("/login");
+      } else {
+        try {
+          const currentUser: UserInterface | undefined = await fetchCurrentUser(
+            token
+          );
+          if (currentUser) {
+            navigate(`/${currentUser.role}`);
+          }
+        } catch (error) {
+          console.error("Failed to fetch user:", error);
+        }
+      }
+    };
+
+    const timeoutId = setTimeout(fetchUser, 800);
+
+    return () => clearTimeout(timeoutId);
+  }, [token, navigate]);
 
   return (
     <main className="h-screen w-full flex items-center justify-center flex-col gap-5 overflow-hidden">
@@ -43,8 +65,14 @@ export default function SplashScreen() {
   );
 }
 
-// export function loader() {
-//   return {
-//     userDataPath: electron.app.getPath("userData"),
-//   };
-// }
+export const loader: LoaderFunction = async ({ request }) => {
+  // fetch bearer token from session
+  const authSession = await getSession(request.headers.get("Cookie"));
+  const token = authSession.get("token");
+
+  return json(token, {
+    headers: {
+      "Set-Cookie": await commitSession(authSession),
+    },
+  });
+};
