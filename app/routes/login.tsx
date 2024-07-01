@@ -8,6 +8,7 @@ import {
 } from "@remix-run/react";
 import PasswordInput from "~/components/inputs/password";
 import TextInput from "~/components/inputs/text";
+import UserController from "~/controllers/UserController";
 import { ActionDataInterface } from "~/utils/types";
 
 export default function Login() {
@@ -81,6 +82,7 @@ export const action: ActionFunction = async ({ request }) => {
   const formValues = Object.fromEntries(formData.entries());
 
   console.log(formValues);
+  // const userController = await new UserController(request);
 
   const errors: ActionDataInterface = {
     status: "error",
@@ -90,6 +92,11 @@ export const action: ActionFunction = async ({ request }) => {
       { field: "password", message: "Invalid password provided" },
     ],
   };
+
+  // await userController.loginUser({
+  //   email: formValues.email as string,
+  //   password: formValues.password as string,
+  // });
 
   return {
     errors,

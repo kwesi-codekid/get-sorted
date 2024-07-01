@@ -1,6 +1,6 @@
 import { redirect } from "@remix-run/node";
 import type { DepartmentInterface } from "../utils/types";
-import { commitFlashSession, getFlashSession } from "~/flash-session";
+import { commitFlashSession, getFlashSession } from "~/utils/flash-session";
 import Department from "~/models/Department";
 
 export default class DepartmentController {

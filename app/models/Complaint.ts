@@ -1,8 +1,8 @@
 import { Schema } from "mongoose";
 import mongoose from "~/mongoose";
-import { MedicalRequestInterface } from "~/utils/types";
+import { ComplaintInterface } from "~/utils/types";
 
-const schema = new Schema<MedicalRequestInterface>(
+const schema = new Schema<ComplaintInterface>(
   {
     initialComplaint: {
       type: String,
@@ -52,14 +52,11 @@ const schema = new Schema<MedicalRequestInterface>(
   }
 );
 
-let MedicalRequest: mongoose.Model<MedicalRequestInterface>;
+let Complaint: mongoose.Model<ComplaintInterface>;
 try {
-  MedicalRequest = mongoose.model<MedicalRequestInterface>("medical_requests");
+  Complaint = mongoose.model<ComplaintInterface>("complaints");
 } catch (error) {
-  MedicalRequest = mongoose.model<MedicalRequestInterface>(
-    "medical_requests",
-    schema
-  );
+  Complaint = mongoose.model<ComplaintInterface>("complaints", schema);
 }
 
-export default MedicalRequest;
+export default Complaint;

@@ -1,6 +1,6 @@
 import { redirect } from "@remix-run/node";
 import type { BranchInterface } from "../utils/types";
-import { commitFlashSession, getFlashSession } from "~/flash-session";
+import { commitFlashSession, getFlashSession } from "~/utils/flash-session";
 import Branch from "~/models/Branch";
 
 export default class BranchController {
