@@ -5,7 +5,7 @@ import {
   TableRow,
   useDisclosure,
 } from "@nextui-org/react";
-import { LoaderFunction, json } from "@remix-run/node";
+import { LoaderFunction } from "@remix-run/node";
 import {
   isRouteErrorResponse,
   useLoaderData,
@@ -22,11 +22,30 @@ import CustomTable from "~/components/sections/table";
 
 import errorIllustration from "~/assets/animated/503-error-animate.svg";
 import { ArrowLeftAnimated } from "~/components/icons/arrows";
+import { fetchDepartments } from "~/data/api/departments";
+import { useLocalStorage } from "~/hooks/useLocalStorage";
+import { useEffect } from "react";
 
 export default function AdminDepartmentManagement() {
   const navigate = useNavigate();
   const navigation = useNavigation();
-  const { page } = useLoaderData<typeof loader>();
+  const { page, search_term } = useLoaderData<typeof loader>();
+
+  const [storedValue] = useLocalStorage("auth-token", "");
+
+  useEffect(() => {
+    try {
+      const response = fetchDepartments({
+        page,
+        search_term,
+        token: storedValue as string,
+      });
+
+      console.log(response);
+    } catch (error) {
+      console.log(error);
+    }
+  }, [page, search_term]);
 
   //   create department stuff
   const createDisclosure = useDisclosure();
@@ -58,8 +77,8 @@ export default function AdminDepartmentManagement() {
         totalPages={3}
         loadingState={navigation.state === "loading" ? "loading" : "idle"}
       >
-        {[{ name: "Some" }].map((user: any) => (
-          <TableRow>
+        {[{ name: "Some" }].map((user: any, index) => (
+          <TableRow key={index}>
             <TableCell>{"user?.firstName"}</TableCell>
             <TableCell>{"user?.firstName"}</TableCell>
             <TableCell className="flex items-center gap-2">
@@ -131,15 +150,10 @@ export default function AdminDepartmentManagement() {
   );
 }
 
-export const loader: LoaderFunction = ({ request }) => {
+export const loader: LoaderFunction = async ({ request }) => {
   const url = new URL(request.url);
   const page = parseInt(url.searchParams.get("page") as string) || 1;
   const search_term = url.searchParams.get("search_term") as string;
-
-  console.log({ page, search_term });
-
-  throw new Error("error");
-  // throw json({ message: "Service Unavailable" }, { status: 503 });
 
   return {
     page,
