@@ -5,7 +5,7 @@ import {
   TableRow,
   useDisclosure,
 } from "@nextui-org/react";
-import { LoaderFunction } from "@remix-run/node";
+import { LoaderFunction, json } from "@remix-run/node";
 import {
   isRouteErrorResponse,
   useLoaderData,
@@ -13,7 +13,6 @@ import {
   useNavigation,
   useRouteError,
 } from "@remix-run/react";
-import { DeleteOutlinedIcon } from "~/components/icons/delete";
 import CustomSelect from "~/components/inputs/select";
 import TextInput from "~/components/inputs/text";
 import CreateRecordModal from "~/components/modals/create";
@@ -24,19 +23,19 @@ import CustomTable from "~/components/sections/table";
 import errorIllustration from "~/assets/animated/503-error-animate.svg";
 import { ArrowLeftAnimated } from "~/components/icons/arrows";
 
-export default function AdminUserManagement() {
+export default function AdminDepartmentManagement() {
   const navigate = useNavigate();
   const navigation = useNavigation();
   const { page } = useLoaderData<typeof loader>();
 
-  //   create user stuff
-  const createUserDisclosure = useDisclosure();
+  //   create department stuff
+  const createDisclosure = useDisclosure();
 
-  // edit user stuff
-  const editUserDisclosure = useDisclosure();
+  // edit department stuff
+  const editDisclosure = useDisclosure();
 
-  // delete user stuff
-  const deleteUserDisclosure = useDisclosure();
+  // delete department stuff
+  const deleteDisclosure = useDisclosure();
 
   return (
     <main className="h-full flex flex-col gap-2">
@@ -45,15 +44,15 @@ export default function AdminUserManagement() {
         <Button
           color="primary"
           className="font-montserrat font-semibold w-max"
-          onPress={() => createUserDisclosure.onOpen()}
+          onPress={() => createDisclosure.onOpen()}
         >
-          Create User
+          New Department
         </Button>
       </div>
 
-      {/* users table */}
+      {/* departments table */}
       <CustomTable
-        columns={["First Name", "Last Name", "Email", "Phone", "Actions"]}
+        columns={["Name", "Description", "Phone"]}
         page={page}
         setPage={(page) => navigate(`?page=${page}`)}
         totalPages={3}
@@ -63,24 +62,22 @@ export default function AdminUserManagement() {
           <TableRow>
             <TableCell>{"user?.firstName"}</TableCell>
             <TableCell>{"user?.firstName"}</TableCell>
-            <TableCell>{"user?.firstName"}</TableCell>
-            <TableCell>{"user?.firstName"}</TableCell>
             <TableCell className="flex items-center gap-2">
-              <EditButton action={() => editUserDisclosure.onOpen()} />
-              <DeleteButton action={() => editUserDisclosure.onOpen()} />
+              <EditButton action={() => editDisclosure.onOpen()} />
+              <DeleteButton action={() => editDisclosure.onOpen()} />
             </TableCell>
           </TableRow>
         ))}
       </CustomTable>
 
-      {/* edit user modal */}
+      {/* edit department modal */}
       <EditRecordModal
-        onCloseModal={editUserDisclosure.onClose}
-        onOpenChange={editUserDisclosure.onOpenChange}
-        isOpen={editUserDisclosure.isOpen}
+        onCloseModal={editDisclosure.onClose}
+        onOpenChange={editDisclosure.onOpenChange}
+        isOpen={editDisclosure.isOpen}
         intent="edit-user"
-        title="Update User Info"
-        actionText="Submit"
+        title="Update Department Info"
+        actionText="Save Changes"
         size="xl"
       >
         <div className="grid grid-cols-2 gap-6">
@@ -94,7 +91,6 @@ export default function AdminUserManagement() {
           <CustomSelect name="role" label="User Role" isRequired>
             {[
               { key: "admin", value: "admin", display_name: "Admin" },
-              { key: "support", value: "support", display_name: "Support" },
               { key: "staff", value: "staff", display_name: "Staff" },
             ].map((role) => (
               <SelectItem key={role.key}>{role.display_name}</SelectItem>
@@ -103,13 +99,13 @@ export default function AdminUserManagement() {
         </div>
       </EditRecordModal>
 
-      {/* create user modal */}
+      {/* create department modal */}
       <CreateRecordModal
-        onCloseModal={createUserDisclosure.onClose}
-        onOpenChange={createUserDisclosure.onOpenChange}
-        isOpen={createUserDisclosure.isOpen}
-        intent="create-user"
-        title="Create New User"
+        onCloseModal={createDisclosure.onClose}
+        onOpenChange={createDisclosure.onOpenChange}
+        isOpen={createDisclosure.isOpen}
+        intent="create-department"
+        title="Create New Department"
         actionText="Submit"
         size="xl"
       >
@@ -142,7 +138,8 @@ export const loader: LoaderFunction = ({ request }) => {
 
   console.log({ page, search_term });
 
-  //throw new Error("error");
+  throw new Error("error");
+  // throw json({ message: "Service Unavailable" }, { status: 503 });
 
   return {
     page,

@@ -9,7 +9,7 @@ export default function TextInput({
 
   useEffect(() => {
     if (actionData) {
-      setInputActionData(actionData.errors);
+      setInputActionData(actionData);
     }
   }, [actionData]);
   return (

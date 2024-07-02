@@ -6,16 +6,37 @@ import {
   useNavigate,
   useNavigation,
 } from "@remix-run/react";
+import { useEffect } from "react";
 import PasswordInput from "~/components/inputs/password";
 import TextInput from "~/components/inputs/text";
-import { ActionDataInterface } from "~/utils/types";
+import { login } from "~/data/api/auth";
+import { useLocalStorage } from "~/hooks/useLocalStorage";
+import { errorToast } from "~/utils/toasters";
 
 export default function Login() {
   const navigation = useNavigation();
   const navigate = useNavigate();
 
+  const [storedValue, setValue] = useLocalStorage("auth-token", undefined);
+
   //   handle form actions
   const actionData = useActionData<typeof action>();
+
+  useEffect(() => {
+    if (actionData) {
+      if (!actionData.errors && actionData.status === "error") {
+        errorToast(
+          "Error",
+          "An error occurred while logging you in. Please try again..."
+        );
+      }
+
+      if (actionData.status === "success") {
+        setValue(actionData.data);
+        navigate(`/${actionData.data.user.role}`);
+      }
+    }
+  }, [actionData]);
 
   return (
     <div className="h-screen grid grid-cols-2 gap-8 bg-[url('assets/images/black-background-texture.jpeg')] bg-cover bg-no-repeat bg-center">
@@ -37,9 +58,11 @@ export default function Login() {
               classNames={{
                 label: "text-white font-sen font-semibold",
                 base: "shadow-none",
-                inputWrapper: "border-gray-600",
+                inputWrapper: "border-gray-600 text-white font-nunito",
                 errorMessage: "font-nunito",
               }}
+              type="email"
+              isRequired
             />
             <PasswordInput
               label="Password"
@@ -48,9 +71,10 @@ export default function Login() {
               classNames={{
                 label: "text-white font-sen font-semibold",
                 base: "shadow-none",
-                inputWrapper: "border-gray-600",
+                inputWrapper: "border-gray-600 text-white font-nunito",
                 errorMessage: "font-nunito",
               }}
+              isRequired
             />
             <div className="flex items-center justify-end">
               <Link
@@ -80,18 +104,10 @@ export const action: ActionFunction = async ({ request }) => {
   const formData = await request.formData();
   const formValues = Object.fromEntries(formData.entries());
 
-  console.log(formValues);
+  const response = await login({
+    email: formValues.email as string,
+    password: formValues.password as string,
+  });
 
-  const errors: ActionDataInterface = {
-    status: "error",
-    message: "Invalid inputs provided",
-    errors: [
-      { field: "email", message: "Invalid email provided" },
-      { field: "password", message: "Invalid password provided" },
-    ],
-  };
-
-  return {
-    errors,
-  };
+  return response;
 };

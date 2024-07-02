@@ -17,9 +17,9 @@ async function createWindow(url) {
   await win.loadURL(url);
   win.show();
 
-  // if (process.env.NODE_ENV === "development") {
-  //   win.webContents.openDevTools();
-  // }
+  if (process.env.NODE_ENV === "development") {
+    win.webContents.openDevTools();
+  }
 }
 
 app.on("ready", () => {
