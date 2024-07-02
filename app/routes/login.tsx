@@ -1,5 +1,5 @@
 import { Button, Card, Link } from "@nextui-org/react";
-import { ActionFunction, LoaderFunction, redirect } from "@remix-run/node";
+import { ActionFunction } from "@remix-run/node";
 import {
   Form,
   useActionData,
@@ -10,11 +10,8 @@ import { useEffect } from "react";
 import PasswordInput from "~/components/inputs/password";
 import TextInput from "~/components/inputs/text";
 import { login } from "~/data/api/auth";
-import { fetchCurrentUser } from "~/data/api/user";
-import { commitSession, getSession } from "~/electron.server";
 import { useLocalStorage } from "~/hooks/useLocalStorage";
-import { errorToast, successToast } from "~/utils/toasters";
-import { ActionDataInterface, UserInterface } from "~/utils/types";
+import { errorToast } from "~/utils/toasters";
 
 export default function Login() {
   const navigation = useNavigation();
