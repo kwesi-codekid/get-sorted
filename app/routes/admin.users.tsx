@@ -23,11 +23,28 @@ import CustomTable from "~/components/sections/table";
 
 import errorIllustration from "~/assets/animated/503-error-animate.svg";
 import { ArrowLeftAnimated } from "~/components/icons/arrows";
+import useSWR from "swr";
+import { fetcher } from "~/data/api/departments";
+import { API_BASE_URL } from "~/data/dotenv";
+import { useLocalStorage } from "~/hooks/useLocalStorage";
+import SearchInput from "~/components/inputs/search";
 
 export default function AdminUserManagement() {
   const navigate = useNavigate();
   const navigation = useNavigation();
-  const { page } = useLoaderData<typeof loader>();
+  const { page, search_term } = useLoaderData<typeof loader>();
+
+  const [storedValue] = useLocalStorage<any>("auth-token", "");
+
+  // table data
+  const { data, isLoading } = useSWR(
+    `${API_BASE_URL}/api/users?page=${page}&search_term=${search_term}`,
+    fetcher(storedValue.token),
+    {
+      keepPreviousData: true,
+    }
+  );
+  const loadingState = isLoading ? "loading" : "idle";
 
   //   create user stuff
   const createUserDisclosure = useDisclosure();
@@ -41,7 +58,8 @@ export default function AdminUserManagement() {
   return (
     <main className="h-full flex flex-col gap-2">
       {/* table top */}
-      <div className="flex items-center justify-end">
+      <div className="flex items-center justify-between">
+        <SearchInput />
         <Button
           color="primary"
           className="font-montserrat font-semibold w-max"
@@ -56,11 +74,11 @@ export default function AdminUserManagement() {
         columns={["First Name", "Last Name", "Email", "Phone", "Actions"]}
         page={page}
         setPage={(page) => navigate(`?page=${page}`)}
-        totalPages={3}
-        loadingState={navigation.state === "loading" ? "loading" : "idle"}
+        totalPages={data?.totalPages}
+        loadingState={loadingState}
       >
-        {[{ name: "Some" }].map((user: any) => (
-          <TableRow>
+        {data?.users?.map((user: any, index: number) => (
+          <TableRow key={index}>
             <TableCell>{"user?.firstName"}</TableCell>
             <TableCell>{"user?.firstName"}</TableCell>
             <TableCell>{"user?.firstName"}</TableCell>

@@ -1,10 +1,4 @@
-import {
-  Button,
-  SelectItem,
-  TableCell,
-  TableRow,
-  useDisclosure,
-} from "@nextui-org/react";
+import { Button, TableCell, TableRow, useDisclosure } from "@nextui-org/react";
 import { LoaderFunction } from "@remix-run/node";
 import {
   isRouteErrorResponse,
@@ -13,7 +7,6 @@ import {
   useNavigation,
   useRouteError,
 } from "@remix-run/react";
-import CustomSelect from "~/components/inputs/select";
 import TextInput from "~/components/inputs/text";
 import CreateRecordModal from "~/components/modals/create";
 import EditRecordModal from "~/components/modals/edit";
@@ -22,30 +15,30 @@ import CustomTable from "~/components/sections/table";
 
 import errorIllustration from "~/assets/animated/503-error-animate.svg";
 import { ArrowLeftAnimated } from "~/components/icons/arrows";
-import { fetchDepartments } from "~/data/api/departments";
 import { useLocalStorage } from "~/hooks/useLocalStorage";
-import { useEffect } from "react";
+import { API_BASE_URL } from "~/data/dotenv";
+import { fetcher } from "~/data/api/departments";
+import useSWR from "swr";
+import { DepartmentInterface } from "~/utils/types";
+import TextareaInput from "~/components/inputs/textarea";
+import SearchInput from "~/components/inputs/search";
 
 export default function AdminDepartmentManagement() {
   const navigate = useNavigate();
   const navigation = useNavigation();
   const { page, search_term } = useLoaderData<typeof loader>();
 
-  const [storedValue] = useLocalStorage("auth-token", "");
+  const [storedValue] = useLocalStorage<any>("auth-token", "");
 
-  useEffect(() => {
-    try {
-      const response = fetchDepartments({
-        page,
-        search_term,
-        token: storedValue as string,
-      });
-
-      console.log(response);
-    } catch (error) {
-      console.log(error);
+  // table data
+  const { data, isLoading } = useSWR(
+    `${API_BASE_URL}/api/departments?page=${page}&search_term=${search_term}`,
+    fetcher(storedValue.token),
+    {
+      keepPreviousData: true,
     }
-  }, [page, search_term]);
+  );
+  const loadingState = isLoading ? "loading" : "idle";
 
   //   create department stuff
   const createDisclosure = useDisclosure();
@@ -59,7 +52,8 @@ export default function AdminDepartmentManagement() {
   return (
     <main className="h-full flex flex-col gap-2">
       {/* table top */}
-      <div className="flex items-center justify-end">
+      <div className="flex items-center justify-between">
+        <SearchInput />
         <Button
           color="primary"
           className="font-montserrat font-semibold w-max"
@@ -71,22 +65,25 @@ export default function AdminDepartmentManagement() {
 
       {/* departments table */}
       <CustomTable
-        columns={["Name", "Description", "Phone"]}
+        columns={["Name", "Description", "Phone", "Actions"]}
         page={page}
         setPage={(page) => navigate(`?page=${page}`)}
-        totalPages={3}
-        loadingState={navigation.state === "loading" ? "loading" : "idle"}
+        totalPages={data?.totalPages || 1}
+        loadingState={loadingState}
       >
-        {[{ name: "Some" }].map((user: any, index) => (
-          <TableRow key={index}>
-            <TableCell>{"user?.firstName"}</TableCell>
-            <TableCell>{"user?.firstName"}</TableCell>
-            <TableCell className="flex items-center gap-2">
-              <EditButton action={() => editDisclosure.onOpen()} />
-              <DeleteButton action={() => editDisclosure.onOpen()} />
-            </TableCell>
-          </TableRow>
-        ))}
+        {data?.departments?.map(
+          (department: DepartmentInterface, index: number) => (
+            <TableRow key={index}>
+              <TableCell>{department?.name}</TableCell>
+              <TableCell>{department?.description}</TableCell>
+              <TableCell>{department?.phone}</TableCell>
+              <TableCell className="flex items-center gap-2">
+                <EditButton action={() => editDisclosure.onOpen()} />
+                <DeleteButton action={() => editDisclosure.onOpen()} />
+              </TableCell>
+            </TableRow>
+          )
+        )}
       </CustomTable>
 
       {/* edit department modal */}
@@ -94,27 +91,15 @@ export default function AdminDepartmentManagement() {
         onCloseModal={editDisclosure.onClose}
         onOpenChange={editDisclosure.onOpenChange}
         isOpen={editDisclosure.isOpen}
-        intent="edit-user"
+        intent="edit-department"
         title="Update Department Info"
         actionText="Save Changes"
         size="xl"
       >
-        <div className="grid grid-cols-2 gap-6">
-          <TextInput name="firstName" label="First Name" isRequired />
-          <TextInput name="lastName" label="Last Name" isRequired />
-          <TextInput name="staffId" label="Staff ID" isRequired />
-          <TextInput name="position" label="Designation" isRequired />
-          <TextInput name="phone" label="Phone" type="tel" isRequired />
-          <TextInput name="email" label="Email" type="email" isRequired />
-          <TextInput name="department" label="Department" isRequired />
-          <CustomSelect name="role" label="User Role" isRequired>
-            {[
-              { key: "admin", value: "admin", display_name: "Admin" },
-              { key: "staff", value: "staff", display_name: "Staff" },
-            ].map((role) => (
-              <SelectItem key={role.key}>{role.display_name}</SelectItem>
-            ))}
-          </CustomSelect>
+        <div className="grid grid-cols-1 gap-6">
+          <TextInput name="name" label="Department Name" isRequired />
+          <TextareaInput name="description" label="Description" isRequired />
+          <TextInput name="phone" label="Phone" isRequired />
         </div>
       </EditRecordModal>
 
@@ -128,22 +113,10 @@ export default function AdminDepartmentManagement() {
         actionText="Submit"
         size="xl"
       >
-        <div className="grid grid-cols-2 gap-6">
-          <TextInput name="firstName" label="First Name" isRequired />
-          <TextInput name="lastName" label="Last Name" isRequired />
-          <TextInput name="staffId" label="Staff ID" isRequired />
-          <TextInput name="position" label="Designation" isRequired />
-          <TextInput name="phone" label="Phone" type="tel" isRequired />
-          <TextInput name="email" label="Email" type="email" isRequired />
-          <TextInput name="department" label="Department" isRequired />
-          <CustomSelect name="role" label="User Role" isRequired>
-            {[
-              { key: "admin", value: "admin", display_name: "Admin" },
-              { key: "staff", value: "staff", display_name: "Staff" },
-            ].map((role) => (
-              <SelectItem key={role.key}>{role.display_name}</SelectItem>
-            ))}
-          </CustomSelect>
+        <div className="grid grid-cols-1 gap-6">
+          <TextInput name="name" label="Department Name" isRequired />
+          <TextareaInput name="description" label="Description" isRequired />
+          <TextInput name="phone" label="Phone" isRequired />
         </div>
       </CreateRecordModal>
     </main>

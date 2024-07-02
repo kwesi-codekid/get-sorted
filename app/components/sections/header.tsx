@@ -1,8 +1,7 @@
 import ProfileDropdown from "./profile-dropdown";
 import NotificationDropdown from "./notification-dropdown";
 import ThemeSwitcher from "./theme-switcher";
-import { Input } from "@nextui-org/react";
-import { useLocation, useNavigate } from "@remix-run/react";
+import { useLocation } from "@remix-run/react";
 
 export default function Header({
   navLinks,
@@ -11,7 +10,6 @@ export default function Header({
   navLinks: { label: string; path: string }[];
   basePath: string;
 }) {
-  const navigate = useNavigate();
   const { pathname } = useLocation();
 
   // Trim leading slash for comparison
@@ -38,26 +36,6 @@ export default function Header({
       <h3 className="font-montserrat font-bold text-white text-2xl">
         {activeLink?.label}
       </h3>
-
-      {/* search bar */}
-      {pathname.substring(6) && (
-        <Input
-          classNames={{
-            base: "max-w-xs font-nunito text-sm h-12",
-            inputWrapper:
-              "bg-opacity-60 dark:bg-slate-800 dark:border border-white/10",
-          }}
-          variant="flat"
-          size="sm"
-          radius="md"
-          placeholder="Search here..."
-          onValueChange={(text: string) => {
-            setTimeout(() => {
-              navigate(`?search_term=${text}`);
-            }, 1500);
-          }}
-        />
-      )}
 
       {/* right-side stuff */}
       <div className="flex items-center gap-0">
