@@ -13,7 +13,7 @@ export const fetchCurrentUser = async (
       },
     });
 
-    return response.data as UserInterface;
+    return response?.data?.data as UserInterface;
   } catch (error) {
     console.log(error);
     errorToast("Error!", "An error occurred while fetching user data");

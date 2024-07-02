@@ -15,7 +15,7 @@ export default function PasswordInput({
 
   useEffect(() => {
     if (actionData) {
-      setInputActionData(actionData.errors);
+      setInputActionData(actionData);
     }
   }, [actionData]);
   return (

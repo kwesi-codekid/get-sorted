@@ -6,11 +6,11 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
-  useNavigation,
 } from "@remix-run/react";
 import { ThemeProvider as NextThemesProvider } from "next-themes";
 import styles from "./styles.css";
 import { NextUIProvider } from "@nextui-org/react";
+import { Toaster } from "react-hot-toast";
 
 export const meta: MetaFunction = () => [
   { title: "GetSorted Helpdesk System" },
@@ -19,9 +19,6 @@ export const meta: MetaFunction = () => [
 export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 
 export default function App() {
-  // const navigation = useNavigation();
-  // console.log(navigation.state);
-
   return (
     <html lang="en">
       <head>
@@ -36,6 +33,7 @@ export default function App() {
             <Outlet />
           </NextThemesProvider>
         </NextUIProvider>
+        <Toaster position="bottom-right" />
         <ScrollRestoration />
         <Scripts />
         <LiveReload />
