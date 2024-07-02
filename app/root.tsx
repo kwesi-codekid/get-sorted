@@ -7,10 +7,14 @@ import {
   Scripts,
   ScrollRestoration,
 } from "@remix-run/react";
+import { ThemeProvider as NextThemesProvider } from "next-themes";
 import styles from "./styles.css";
 import { NextUIProvider } from "@nextui-org/react";
+import { Toaster } from "react-hot-toast";
 
-export const meta: MetaFunction = () => [{ title: "New Remix App" }];
+export const meta: MetaFunction = () => [
+  { title: "GetSorted Helpdesk System" },
+];
 
 export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 
@@ -23,13 +27,16 @@ export default function App() {
         <Meta />
         <Links />
       </head>
-      <body>
+      <body className="">
         <NextUIProvider>
-          <Outlet />
-          <ScrollRestoration />
-          <Scripts />
-          <LiveReload />
+          <NextThemesProvider attribute="class" defaultTheme="light">
+            <Outlet />
+          </NextThemesProvider>
         </NextUIProvider>
+        <Toaster position="bottom-right" />
+        <ScrollRestoration />
+        <Scripts />
+        <LiveReload />
       </body>
     </html>
   );

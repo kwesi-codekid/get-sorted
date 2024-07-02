@@ -1,11 +1,49 @@
+@import url(https://fonts.googleapis.com/css?family=Montserrat:100,200,300,regular,500,600,700,800,900,100italic,200italic,300italic,italic,500italic,600italic,700italic,800italic,900italic);
+@import url(https://fonts.googleapis.com/css?family=Nunito:200,300,regular,500,600,700,800,900,200italic,300italic,italic,500italic,600italic,700italic,800italic,900italic);
+@import url(https://fonts.googleapis.com/css?family=Sen:regular,500,600,700,800);
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-* {
+/* * {
 	box-sizing: border-box;
+} */
+
+.vertical-scrollbar::-webkit-scrollbar {
+	position: relative;
+	overflow: hidden;
+	width: 3px !important;
+	border-radius: 12px !important;
+	background-color: #bfdbfe !important;
 }
 
-:root {
-	font-family: sans-serif;
+.vertical-scrollbar::-webkit-scrollbar-track {
+	width: 3px !important;
+	border-radius: 12px !important;
+	background-color: #bfdbfe !important;
+}
+
+.vertical-scrollbar::-webkit-scrollbar-thumb {
+	background-color: #2563eb !important;
+	border-radius: 12px !important;
+}
+
+.horizontal-scrollbar::scrollbar {
+	position: relative;
+	overflow: hidden;
+	height: 3px !important;
+	border-radius: 12px !important;
+	background-color: #bfdbfe !important;
+}
+
+.horizontal-scrollbar::scrollbar-track {
+	height: 3px !important;
+	border-radius: 12px !important;
+	background-color: #bfdbfe !important;
+}
+
+.horizontal-scrollbar::scrollbar-thumb {
+	background-color: #2563eb !important;
+	border-radius: 12px !important;
 }
