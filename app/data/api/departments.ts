@@ -11,17 +11,20 @@ export const fetchDepartments = async ({
   search_term?: string;
   page?: string | number;
 }): Promise<DepartmentInterface | ActionDataInterface | undefined> => {
+  console.log({ token });
+
   try {
     const response = await axios.get(
-      `http://localhost:5173/api/departments?search_term=${search_term}&page=${page}`,
+      `https://get-sorted-backend.vercel.app/api/departments?search_term=${search_term}&page=${page}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
       }
     );
 
-    return response?.data?.data as DepartmentInterface;
+    return response?.data as DepartmentInterface;
   } catch (error: any) {
     return {
       status: "error",

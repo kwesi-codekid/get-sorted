@@ -33,15 +33,20 @@ export default function AdminDepartmentManagement() {
 
   const [storedValue] = useLocalStorage("auth-token", "");
 
+  const getData = async () => {
+    const response = await fetchDepartments({
+      page,
+      search_term,
+      token: storedValue?.token as string,
+    });
+
+    console.log(response);
+  };
   useEffect(() => {
     try {
-      const response = fetchDepartments({
-        page,
-        search_term,
-        token: storedValue as string,
-      });
+      getData();
 
-      console.log(response);
+      // console.log(response);
     } catch (error) {
       console.log(error);
     }
@@ -153,7 +158,7 @@ export default function AdminDepartmentManagement() {
 export const loader: LoaderFunction = async ({ request }) => {
   const url = new URL(request.url);
   const page = parseInt(url.searchParams.get("page") as string) || 1;
-  const search_term = url.searchParams.get("search_term") as string;
+  const search_term = (url.searchParams.get("search_term") as string) || "";
 
   return {
     page,

@@ -1,5 +1,11 @@
 const { initRemix } = require("remix-electron");
-const { app, BrowserWindow, dialog, Notification } = require("electron");
+const {
+  app,
+  BrowserWindow,
+  dialog,
+  session,
+  Notification,
+} = require("electron");
 const path = require("node:path");
 
 /** @type {BrowserWindow | undefined} */
@@ -13,6 +19,9 @@ async function createWindow(url) {
     width: 1280,
     height: 768,
     autoHideMenuBar: true,
+    webPreferences: {
+      webSecurity: false,
+    },
   });
   await win.loadURL(url);
   win.show();
@@ -33,6 +42,13 @@ app.on("ready", () => {
 
         await installExtension(REACT_DEVELOPER_TOOLS);
       }
+
+      session.defaultSession.webRequest.onHeadersReceived(
+        (details, callback) => {
+          details.responseHeaders["Access-Control-Allow-Origin"] = "*";
+          callback({ responseHeaders: details.responseHeaders });
+        }
+      );
 
       const url = await initRemix({
         serverBuild: path.join(__dirname, "../build/index.js"),
