@@ -6,13 +6,142 @@ export const SunIcon = (props: React.SVGProps<SVGSVGElement>) => (
     viewBox="0 0 24 24"
     {...props}
   >
-    <g fill="none">
-      <path d="M24 0v24H0V0zM12.593 23.258l-.011.002l-.071.035l-.02.004l-.014-.004l-.071-.035q-.016-.005-.024.005l-.004.01l-.017.428l.005.02l.01.013l.104.074l.015.004l.012-.004l.104-.074l.012-.016l.004-.017l-.017-.427q-.004-.016-.017-.018m.265-.113l-.013.002l-.185.093l-.01.01l-.003.011l.018.43l.005.012l.008.007l.201.093q.019.005.029-.008l.004-.014l-.034-.614q-.005-.019-.02-.022m-.715.002a.02.02 0 0 0-.027.006l-.006.014l-.034.614q.001.018.017.024l.015-.002l.201-.093l.01-.008l.004-.011l.017-.43l-.003-.012l-.01-.01z" />
-      <path
-        fill="currentColor"
-        d="M12 19a1 1 0 0 1 1 1v1a1 1 0 1 1-2 0v-1a1 1 0 0 1 1-1m6.364-2.05l.707.707a1 1 0 0 1-1.414 1.414l-.707-.707a1 1 0 0 1 1.414-1.414m-12.728 0a1 1 0 0 1 1.497 1.32l-.083.094l-.707.707a1 1 0 0 1-1.497-1.32l.083-.094zM12 6a6 6 0 1 1 0 12a6 6 0 0 1 0-12m-8 5a1 1 0 0 1 .117 1.993L4 13H3a1 1 0 0 1-.117-1.993L3 11zm17 0a1 1 0 1 1 0 2h-1a1 1 0 1 1 0-2zM4.929 4.929a1 1 0 0 1 1.32-.083l.094.083l.707.707a1 1 0 0 1-1.32 1.497l-.094-.083l-.707-.707a1 1 0 0 1 0-1.414m14.142 0a1 1 0 0 1 0 1.414l-.707.707a1 1 0 1 1-1.414-1.414l.707-.707a1 1 0 0 1 1.414 0M12 2a1 1 0 0 1 1 1v1a1 1 0 1 1-2 0V3a1 1 0 0 1 1-1"
-      />
+    <g
+      fill="none"
+      stroke="currentColor"
+      strokeDasharray={2}
+      strokeDashoffset={2}
+      strokeLinecap="round"
+      strokeWidth={2}
+    >
+      <path d="M0 0">
+        <animate
+          fill="freeze"
+          attributeName="d"
+          begin="1.2s"
+          dur="0.2s"
+          values="M12 19v1M19 12h1M12 5v-1M5 12h-1;M12 21v1M21 12h1M12 3v-1M3 12h-1"
+        ></animate>
+        <animate
+          fill="freeze"
+          attributeName="stroke-dashoffset"
+          begin="1.2s"
+          dur="0.2s"
+          values="2;0"
+        ></animate>
+      </path>
+      <path d="M0 0">
+        <animate
+          fill="freeze"
+          attributeName="d"
+          begin="1.5s"
+          dur="0.2s"
+          values="M17 17l0.5 0.5M17 7l0.5 -0.5M7 7l-0.5 -0.5M7 17l-0.5 0.5;M18.5 18.5l0.5 0.5M18.5 5.5l0.5 -0.5M5.5 5.5l-0.5 -0.5M5.5 18.5l-0.5 0.5"
+        ></animate>
+        <animate
+          fill="freeze"
+          attributeName="stroke-dashoffset"
+          begin="1.5s"
+          dur="1.2s"
+          values="2;0"
+        ></animate>
+      </path>
     </g>
+    <g fill="currentColor">
+      <path d="M15.22 6.03L17.75 4.09L14.56 4L13.5 1L12.44 4L9.25 4.09L11.78 6.03L10.87 9.09L13.5 7.28L16.13 9.09L15.22 6.03Z">
+        <animate
+          fill="freeze"
+          attributeName="fill-opacity"
+          dur="0.4s"
+          values="1;0"
+        ></animate>
+      </path>
+      <path d="M19.61 12.25L21.25 11L19.19 10.95L18.5 9L17.81 10.95L15.75 11L17.39 12.25L16.8 14.23L18.5 13.06L20.2 14.23L19.61 12.25Z">
+        <animate
+          fill="freeze"
+          attributeName="fill-opacity"
+          begin="0.2s"
+          dur="0.4s"
+          values="1;0"
+        ></animate>
+      </path>
+    </g>
+    <g
+      fill="currentColor"
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+    >
+      <path d="M7 6 C7 12.08 11.92 17 18 17 C18.53 17 19.05 16.96 19.56 16.89 C17.95 19.36 15.17 21 12 21 C7.03 21 3 16.97 3 12 C3 8.83 4.64 6.05 7.11 4.44 C7.04 4.95 7 5.47 7 6 Z"></path>
+      <set attributeName="opacity" begin="0.6s" to={0}></set>
+    </g>
+    <mask id="lineMdMoonFilledToSunnyFilledTransition0">
+      <circle cx={12} cy={12} r={12} fill="#fff"></circle>
+      <circle cx={18} cy={6} r={12} fill="#fff">
+        <animate
+          fill="freeze"
+          attributeName="cx"
+          begin="0.6s"
+          dur="0.4s"
+          values="18;22"
+        ></animate>
+        <animate
+          fill="freeze"
+          attributeName="cy"
+          begin="0.6s"
+          dur="0.4s"
+          values="6;2"
+        ></animate>
+        <animate
+          fill="freeze"
+          attributeName="r"
+          begin="0.6s"
+          dur="0.4s"
+          values="12;3"
+        ></animate>
+      </circle>
+      <circle cx={18} cy={6} r={10}>
+        <animate
+          fill="freeze"
+          attributeName="cx"
+          begin="0.6s"
+          dur="0.4s"
+          values="18;22"
+        ></animate>
+        <animate
+          fill="freeze"
+          attributeName="cy"
+          begin="0.6s"
+          dur="0.4s"
+          values="6;2"
+        ></animate>
+        <animate
+          fill="freeze"
+          attributeName="r"
+          begin="0.6s"
+          dur="0.4s"
+          values="10;1"
+        ></animate>
+      </circle>
+    </mask>
+    <circle
+      cx={12}
+      cy={12}
+      r={10}
+      fill="currentColor"
+      mask="url(#lineMdMoonFilledToSunnyFilledTransition0)"
+      opacity={0}
+    >
+      <set attributeName="opacity" begin="0.6s" to={1}></set>
+      <animate
+        fill="freeze"
+        attributeName="r"
+        begin="0.6s"
+        dur="0.4s"
+        values="10;6"
+      ></animate>
+    </circle>
   </svg>
 );
 export const MoonIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -20,12 +149,127 @@ export const MoonIcon = (props: React.SVGProps<SVGSVGElement>) => (
     xmlns="http://www.w3.org/2000/svg"
     width="1em"
     height="1em"
-    viewBox="0 0 256 256"
+    viewBox="0 0 24 24"
     {...props}
   >
-    <path
+    <g
+      fill="none"
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+    >
+      <g strokeDasharray={2}>
+        <path d="M12 21v1M21 12h1M12 3v-1M3 12h-1">
+          <animate
+            fill="freeze"
+            attributeName="stroke-dashoffset"
+            dur="0.2s"
+            values="4;2"
+          ></animate>
+        </path>
+        <path d="M18.5 18.5l0.5 0.5M18.5 5.5l0.5 -0.5M5.5 5.5l-0.5 -0.5M5.5 18.5l-0.5 0.5">
+          <animate
+            fill="freeze"
+            attributeName="stroke-dashoffset"
+            begin="0.2s"
+            dur="0.2s"
+            values="4;2"
+          ></animate>
+        </path>
+      </g>
+      <path
+        fill="currentColor"
+        d="M7 6 C7 12.08 11.92 17 18 17 C18.53 17 19.05 16.96 19.56 16.89 C17.95 19.36 15.17 21 12 21 C7.03 21 3 16.97 3 12 C3 8.83 4.64 6.05 7.11 4.44 C7.04 4.95 7 5.47 7 6 Z"
+        opacity={0}
+      >
+        <set attributeName="opacity" begin="0.5s" to={1}></set>
+      </path>
+    </g>
+    <g fill="currentColor" fillOpacity={0}>
+      <path d="M15.22 6.03L17.75 4.09L14.56 4L13.5 1L12.44 4L9.25 4.09L11.78 6.03L10.87 9.09L13.5 7.28L16.13 9.09L15.22 6.03Z">
+        <animate
+          fill="freeze"
+          attributeName="fill-opacity"
+          begin="0.6s"
+          dur="0.4s"
+          values="0;1"
+        ></animate>
+      </path>
+      <path d="M19.61 12.25L21.25 11L19.19 10.95L18.5 9L17.81 10.95L15.75 11L17.39 12.25L16.8 14.23L18.5 13.06L20.2 14.23L19.61 12.25Z">
+        <animate
+          fill="freeze"
+          attributeName="fill-opacity"
+          begin="1s"
+          dur="0.4s"
+          values="0;1"
+        ></animate>
+      </path>
+    </g>
+    <mask id="lineMdSunnyFilledLoopToMoonFilledTransition0">
+      <circle cx={12} cy={12} r={12} fill="#fff"></circle>
+      <circle cx={22} cy={2} r={3} fill="#fff">
+        <animate
+          fill="freeze"
+          attributeName="cx"
+          begin="0.1s"
+          dur="0.4s"
+          values="22;18"
+        ></animate>
+        <animate
+          fill="freeze"
+          attributeName="cy"
+          begin="0.1s"
+          dur="0.4s"
+          values="2;6"
+        ></animate>
+        <animate
+          fill="freeze"
+          attributeName="r"
+          begin="0.1s"
+          dur="0.4s"
+          values="3;12"
+        ></animate>
+      </circle>
+      <circle cx={22} cy={2} r={1}>
+        <animate
+          fill="freeze"
+          attributeName="cx"
+          begin="0.1s"
+          dur="0.4s"
+          values="22;18"
+        ></animate>
+        <animate
+          fill="freeze"
+          attributeName="cy"
+          begin="0.1s"
+          dur="0.4s"
+          values="2;6"
+        ></animate>
+        <animate
+          fill="freeze"
+          attributeName="r"
+          begin="0.1s"
+          dur="0.4s"
+          values="1;10"
+        ></animate>
+      </circle>
+    </mask>
+    <circle
+      cx={12}
+      cy={12}
+      r={6}
       fill="currentColor"
-      d="M235.54 150.21a104.84 104.84 0 0 1-37 52.91A104 104 0 0 1 32 120a103.1 103.1 0 0 1 20.88-62.52a104.84 104.84 0 0 1 52.91-37a8 8 0 0 1 10 10a88.08 88.08 0 0 0 109.8 109.8a8 8 0 0 1 10 10Z"
-    />
+      mask="url(#lineMdSunnyFilledLoopToMoonFilledTransition0)"
+    >
+      <set attributeName="opacity" begin="0.5s" to={0}></set>
+      <animate
+        fill="freeze"
+        attributeName="r"
+        begin="0.1s"
+        dur="0.4s"
+        values="6;10"
+      ></animate>
+    </circle>
   </svg>
 );

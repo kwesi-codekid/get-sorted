@@ -6,12 +6,11 @@ import {
   User,
   useDisclosure,
 } from "@nextui-org/react";
-import { UserInterface } from "~/utils/types";
 import ConfirmModal from "../modals/confirm";
 import { useLocalStorage } from "~/hooks/useLocalStorage";
 import { useNavigate } from "@remix-run/react";
 
-export default function ProfileDropdown({ user }: { user?: UserInterface }) {
+export default function ProfileDropdown() {
   const navigate = useNavigate();
   const logoutDisclosure = useDisclosure();
   const [storedValue, , deleteKey] = useLocalStorage<any>(

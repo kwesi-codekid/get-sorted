@@ -1,10 +1,4 @@
-import {
-  Button,
-  SelectItem,
-  TableCell,
-  TableRow,
-  useDisclosure,
-} from "@nextui-org/react";
+import { Button, TableCell, TableRow, useDisclosure } from "@nextui-org/react";
 import { LoaderFunction } from "@remix-run/node";
 import {
   isRouteErrorResponse,
@@ -13,8 +7,6 @@ import {
   useNavigation,
   useRouteError,
 } from "@remix-run/react";
-import { DeleteOutlinedIcon } from "~/components/icons/delete";
-import CustomSelect from "~/components/inputs/select";
 import TextInput from "~/components/inputs/text";
 import CreateRecordModal from "~/components/modals/create";
 import EditRecordModal from "~/components/modals/edit";
@@ -23,13 +15,15 @@ import CustomTable from "~/components/sections/table";
 
 import errorIllustration from "~/assets/animated/503-error-animate.svg";
 import { ArrowLeftAnimated } from "~/components/icons/arrows";
-import useSWR from "swr";
-import { fetcher } from "~/data/api/departments";
-import { API_BASE_URL } from "~/data/dotenv";
 import { useLocalStorage } from "~/hooks/useLocalStorage";
+import { API_BASE_URL } from "~/data/dotenv";
+import { fetcher } from "~/data/api/departments";
+import useSWR from "swr";
+import { DepartmentInterface } from "~/utils/types";
+import TextareaInput from "~/components/inputs/textarea";
 import SearchInput from "~/components/inputs/search";
 
-export default function AdminUserManagement() {
+export default function AdminDepartmentManagement() {
   const navigate = useNavigate();
   const navigation = useNavigation();
   const { page, search_term } = useLoaderData<typeof loader>();
@@ -38,7 +32,7 @@ export default function AdminUserManagement() {
 
   // table data
   const { data, isLoading } = useSWR(
-    `${API_BASE_URL}/api/users?page=${page}&search_term=${search_term}`,
+    `${API_BASE_URL}/api/departments?page=${page}&search_term=${search_term}`,
     fetcher(storedValue.token),
     {
       keepPreviousData: true,
@@ -46,14 +40,14 @@ export default function AdminUserManagement() {
   );
   const loadingState = isLoading ? "loading" : "idle";
 
-  //   create user stuff
-  const createUserDisclosure = useDisclosure();
+  //   create department stuff
+  const createDisclosure = useDisclosure();
 
-  // edit user stuff
-  const editUserDisclosure = useDisclosure();
+  // edit department stuff
+  const editDisclosure = useDisclosure();
 
-  // delete user stuff
-  const deleteUserDisclosure = useDisclosure();
+  // delete department stuff
+  const deleteDisclosure = useDisclosure();
 
   return (
     <main className="h-full flex flex-col gap-2">
@@ -63,104 +57,76 @@ export default function AdminUserManagement() {
         <Button
           color="primary"
           className="font-montserrat font-semibold w-max"
-          onPress={() => createUserDisclosure.onOpen()}
+          onPress={() => createDisclosure.onOpen()}
         >
-          Create User
+          New Department
         </Button>
       </div>
 
-      {/* users table */}
+      {/* departments table */}
       <CustomTable
-        columns={["First Name", "Last Name", "Email", "Phone", "Actions"]}
+        columns={["Name", "Description", "Phone", "Actions"]}
         page={page}
         setPage={(page) => navigate(`?page=${page}`)}
-        totalPages={data?.totalPages}
+        totalPages={data?.totalPages || 1}
         loadingState={loadingState}
       >
-        {data?.users?.map((user: any, index: number) => (
-          <TableRow key={index}>
-            <TableCell>{"user?.firstName"}</TableCell>
-            <TableCell>{"user?.firstName"}</TableCell>
-            <TableCell>{"user?.firstName"}</TableCell>
-            <TableCell>{"user?.firstName"}</TableCell>
-            <TableCell className="flex items-center gap-2">
-              <EditButton action={() => editUserDisclosure.onOpen()} />
-              <DeleteButton action={() => editUserDisclosure.onOpen()} />
-            </TableCell>
-          </TableRow>
-        ))}
+        {data?.departments?.map(
+          (department: DepartmentInterface, index: number) => (
+            <TableRow key={index}>
+              <TableCell>{department?.name}</TableCell>
+              <TableCell>{department?.description}</TableCell>
+              <TableCell>{department?.phone}</TableCell>
+              <TableCell className="flex items-center gap-2">
+                <EditButton action={() => editDisclosure.onOpen()} />
+                <DeleteButton action={() => editDisclosure.onOpen()} />
+              </TableCell>
+            </TableRow>
+          )
+        )}
       </CustomTable>
 
-      {/* edit user modal */}
+      {/* edit department modal */}
       <EditRecordModal
-        onCloseModal={editUserDisclosure.onClose}
-        onOpenChange={editUserDisclosure.onOpenChange}
-        isOpen={editUserDisclosure.isOpen}
-        intent="edit-user"
-        title="Update User Info"
-        actionText="Submit"
+        onCloseModal={editDisclosure.onClose}
+        onOpenChange={editDisclosure.onOpenChange}
+        isOpen={editDisclosure.isOpen}
+        intent="edit-department"
+        title="Update Department Info"
+        actionText="Save Changes"
         size="xl"
       >
-        <div className="grid grid-cols-2 gap-6">
-          <TextInput name="firstName" label="First Name" isRequired />
-          <TextInput name="lastName" label="Last Name" isRequired />
-          <TextInput name="staffId" label="Staff ID" isRequired />
-          <TextInput name="position" label="Designation" isRequired />
-          <TextInput name="phone" label="Phone" type="tel" isRequired />
-          <TextInput name="email" label="Email" type="email" isRequired />
-          <TextInput name="department" label="Department" isRequired />
-          <CustomSelect name="role" label="User Role" isRequired>
-            {[
-              { key: "admin", value: "admin", display_name: "Admin" },
-              { key: "support", value: "support", display_name: "Support" },
-              { key: "staff", value: "staff", display_name: "Staff" },
-            ].map((role) => (
-              <SelectItem key={role.key}>{role.display_name}</SelectItem>
-            ))}
-          </CustomSelect>
+        <div className="grid grid-cols-1 gap-6">
+          <TextInput name="name" label="Department Name" isRequired />
+          <TextareaInput name="description" label="Description" isRequired />
+          <TextInput name="phone" label="Phone" isRequired />
         </div>
       </EditRecordModal>
 
-      {/* create user modal */}
+      {/* create department modal */}
       <CreateRecordModal
-        onCloseModal={createUserDisclosure.onClose}
-        onOpenChange={createUserDisclosure.onOpenChange}
-        isOpen={createUserDisclosure.isOpen}
-        intent="create-user"
-        title="Create New User"
+        onCloseModal={createDisclosure.onClose}
+        onOpenChange={createDisclosure.onOpenChange}
+        isOpen={createDisclosure.isOpen}
+        intent="create-department"
+        title="Create New Department"
         actionText="Submit"
         size="xl"
       >
-        <div className="grid grid-cols-2 gap-6">
-          <TextInput name="firstName" label="First Name" isRequired />
-          <TextInput name="lastName" label="Last Name" isRequired />
-          <TextInput name="staffId" label="Staff ID" isRequired />
-          <TextInput name="position" label="Designation" isRequired />
-          <TextInput name="phone" label="Phone" type="tel" isRequired />
-          <TextInput name="email" label="Email" type="email" isRequired />
-          <TextInput name="department" label="Department" isRequired />
-          <CustomSelect name="role" label="User Role" isRequired>
-            {[
-              { key: "admin", value: "admin", display_name: "Admin" },
-              { key: "staff", value: "staff", display_name: "Staff" },
-            ].map((role) => (
-              <SelectItem key={role.key}>{role.display_name}</SelectItem>
-            ))}
-          </CustomSelect>
+        <div className="grid grid-cols-1 gap-6">
+          <TextInput name="name" label="Department Name" isRequired />
+          <TextareaInput name="description" label="Description" isRequired />
+          <TextInput name="phone" label="Phone" isRequired />
         </div>
       </CreateRecordModal>
     </main>
   );
 }
 
-export const loader: LoaderFunction = ({ request }) => {
+export const loader: LoaderFunction = async ({ request }) => {
   const url = new URL(request.url);
   const page = parseInt(url.searchParams.get("page") as string) || 1;
-  const search_term = url.searchParams.get("search_term") as string;
-
-  console.log({ page, search_term });
-
-  //throw new Error("error");
+  const search_term = (url.searchParams.get("search_term") as string) || "";
 
   return {
     page,
