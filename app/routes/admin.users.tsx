@@ -52,7 +52,7 @@ export default function AdminUserManagement() {
       if (!actionData.errors && actionData.status === "error") {
         errorToast(
           "Error",
-          "An error occurred while logging you in. Please try again..."
+          "An unexpected error occurred. Please try again..."
         );
       }
 
@@ -313,6 +313,7 @@ export default function AdminUserManagement() {
           <CustomSelect name="role" label="User Role" isRequired>
             {[
               { key: "admin", value: "admin", display_name: "Admin" },
+              { key: "support", value: "support", display_name: "Support" },
               { key: "staff", value: "staff", display_name: "Staff" },
             ].map((role) => (
               <SelectItem key={role.key}>{role.display_name}</SelectItem>
@@ -395,6 +396,7 @@ export const action: ActionFunction = async ({ request }) => {
       const response = await axios.put(
         `${API_BASE_URL}/api/users/update`,
         {
+          id: payload.id as string,
           firstName: payload.firstName as string,
           lastName: payload.lastName as string,
           phone: payload.phone as string,

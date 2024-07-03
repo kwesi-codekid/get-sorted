@@ -38,6 +38,7 @@ import { UserAnimated } from "~/components/icons/user";
 import { LoginAnimatedIcon } from "~/components/icons/open";
 import CustomSelect from "~/components/inputs/select";
 import { PlusIcon } from "~/components/icons/plus";
+import { SupportUsersCombobox } from "~/components/inputs/combobox";
 
 export default function AdminTicketManagement() {
   const navigate = useNavigate();
@@ -63,6 +64,7 @@ export default function AdminTicketManagement() {
         createDisclosure.onClose();
         editDisclosure.onClose();
         deleteDisclosure.onClose();
+        assignDisclosure.onClose();
         mutate(
           `${API_BASE_URL}/api/tickets?page=${page}&search_term=${search_term}`
         );
@@ -91,6 +93,11 @@ export default function AdminTicketManagement() {
   // delete department stuff
   const deleteDisclosure = useDisclosure();
   const [deleteId, setDeleteId] = useState("");
+
+  // assign ticket stuff
+  const assignDisclosure = useDisclosure();
+  const [assigneeKey, setAssigneeKey] = useState("");
+  const [ticketId, setTicketId] = useState("");
 
   return (
     <main className="h-full flex flex-col gap-2">
@@ -194,6 +201,13 @@ export default function AdminTicketManagement() {
                 variant="flat"
                 color="primary"
                 startContent={<UserAnimated className="size-3.5" />}
+                onPress={() => {
+                  setTicketId(ticket?._id);
+                  if (ticket?.assignee) {
+                    setAssigneeKey(ticket?.assignee?._id as string);
+                  }
+                  assignDisclosure.onOpen();
+                }}
               >
                 {!ticket?.assignee ? "Assign" : "Reassign"}
               </Button>
@@ -310,23 +324,34 @@ export default function AdminTicketManagement() {
         </div>
       </CreateRecordModal>
 
-      {/* delete department modal */}
+      {/* assign ticket modal */}
       <EditRecordModal
-        onCloseModal={deleteDisclosure.onClose}
-        onOpenChange={deleteDisclosure.onOpenChange}
-        isOpen={deleteDisclosure.isOpen}
-        intent="delete-department"
-        title="Delete Department"
-        actionText="Delete"
-        size="xl"
+        onCloseModal={assignDisclosure.onClose}
+        onOpenChange={assignDisclosure.onOpenChange}
+        isOpen={assignDisclosure.isOpen}
+        intent="assign-ticket"
+        title="Assign Ticket"
+        actionText="Assign"
+        size="md"
         token={storedValue.token}
       >
-        <p className="font-nunito">Are you sure to delete this user account?</p>
         <TextInput
-          defaultValue={deleteId}
-          name="id"
+          defaultValue={ticketId}
           className="hidden"
-          label="Delete ID"
+          name="id"
+          label="Ticket ID"
+        />
+        <TextInput
+          name="assignee"
+          className="hidden"
+          label="Assignee"
+          value={assigneeKey}
+        />
+        <SupportUsersCombobox
+          label="Assignee Combobox"
+          value={assigneeKey}
+          setValue={setAssigneeKey}
+          token={storedValue?.token}
         />
       </EditRecordModal>
     </main>
@@ -365,15 +390,13 @@ export const action: ActionFunction = async ({ request }) => {
     }
   }
 
-  if (formValues.intent === "edit-department") {
+  if (formValues.intent === "assign-ticket") {
     try {
       const response = await axios.put(
-        `${API_BASE_URL}/api/departments/update`,
+        `${API_BASE_URL}/api/tickets/assign`,
         {
-          id: formValues._id,
-          name: formValues.name,
-          description: formValues.description,
-          phone: formValues.phone,
+          id: formValues.id,
+          assignee: formValues.assignee,
         },
         {
           headers: {

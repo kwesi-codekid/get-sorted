@@ -31,7 +31,7 @@ export type DepartmentInterface = {
 };
 
 export interface TicketInterface {
-  id: string; // Unique identifier for the ticket
+  _id: string; // Unique identifier for the ticket
   title: string; // Brief title of the issue or request
   description: string; // Detailed description of the issue or request
   status: "open" | "in-progress" | "resolved" | "closed"; // Current status of the ticket
