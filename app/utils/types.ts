@@ -23,12 +23,6 @@ export type UserInterface = {
   deletedAt?: string;
 };
 
-export type UserRoleInterface = {
-  id?: string;
-  value?: string;
-  display_name?: string;
-};
-
 export type DepartmentInterface = {
   _id?: string;
   name: string;
@@ -42,8 +36,8 @@ export interface TicketInterface {
   description: string; // Detailed description of the issue or request
   status: "open" | "in-progress" | "resolved" | "closed"; // Current status of the ticket
   priority: "low" | "medium" | "high" | "urgent"; // Priority level of the ticket
-  assignee?: string; // ID or name of the person assigned to the ticket
-  reporter: string; // ID or name of the person who reported the issue
+  assignee?: UserInterface; // ID or name of the person assigned to the ticket
+  reporter: UserInterface; // ID or name of the person who reported the issue
   createdAt: Date; // Timestamp when the ticket was created
   updatedAt: Date; // Timestamp when the ticket was last updated
   comments?: Comment[]; // Optional array of comments on the ticket
@@ -58,7 +52,7 @@ export interface CommentInterface {
 }
 
 export interface FAQInterface {
-  id: string; // Unique identifier for the FAQ
+  _id: string; // Unique identifier for the FAQ
   question: string; // The question being asked
   answer: string; // The answer to the question
   category: string; // Category to which the FAQ belongs

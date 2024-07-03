@@ -26,7 +26,7 @@ const CreateRecordModal = ({
   title: string;
   actionText: string;
   children?: React.ReactNode;
-  size?: "sm" | "md" | "lg" | "xl";
+  size?: "sm" | "md" | "lg" | "xl" | "2xl" | "3xl" | "4xl" | "5xl" | "full";
   intent: string;
   token: string;
 }) => {
@@ -71,6 +71,7 @@ const CreateRecordModal = ({
       scrollBehavior="inside"
       classNames={{
         base: "rounded-3xl dark:bg-slate-900 border-[1px] dark:border-slate-700/20",
+        body: "vertical-scrollbar",
       }}
       motionProps={{
         variants: {
