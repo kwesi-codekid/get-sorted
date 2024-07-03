@@ -24,7 +24,7 @@ import { DepartmentInterface } from "~/utils/types";
 import TextareaInput from "~/components/inputs/textarea";
 import SearchInput from "~/components/inputs/search";
 import axios from "axios";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { errorToast, successToast } from "~/utils/toasters";
 
 export default function AdminDepartmentManagement() {
@@ -50,6 +50,7 @@ export default function AdminDepartmentManagement() {
         successToast("Success", actionData.message);
         createDisclosure.onClose();
         editDisclosure.onClose();
+        deleteDisclosure.onClose();
         mutate(
           `${API_BASE_URL}/api/departments?page=${page}&search_term=${search_term}`
         );
@@ -72,9 +73,12 @@ export default function AdminDepartmentManagement() {
 
   // edit department stuff
   const editDisclosure = useDisclosure();
+  const [selectedDepartment, setSelectedDepartment] =
+    useState<DepartmentInterface>();
 
   // delete department stuff
   const deleteDisclosure = useDisclosure();
+  const [deleteId, setDeleteId] = useState("");
 
   return (
     <main className="h-full flex flex-col gap-2">
@@ -105,8 +109,18 @@ export default function AdminDepartmentManagement() {
               <TableCell>{department?.description}</TableCell>
               <TableCell>{department?.phone}</TableCell>
               <TableCell className="flex items-center gap-2">
-                <EditButton action={() => editDisclosure.onOpen()} />
-                <DeleteButton action={() => editDisclosure.onOpen()} />
+                <EditButton
+                  action={() => {
+                    setSelectedDepartment(department);
+                    editDisclosure.onOpen();
+                  }}
+                />
+                <DeleteButton
+                  action={() => {
+                    setDeleteId(department?._id as string);
+                    deleteDisclosure.onOpen();
+                  }}
+                />
               </TableCell>
             </TableRow>
           )
@@ -122,11 +136,37 @@ export default function AdminDepartmentManagement() {
         title="Update Department Info"
         actionText="Save Changes"
         size="xl"
+        token={storedValue.token}
       >
         <div className="grid grid-cols-1 gap-6">
-          <TextInput name="name" label="Department Name" isRequired />
-          <TextareaInput name="description" label="Description" isRequired />
-          <TextInput name="phone" label="Phone" isRequired />
+          <TextInput
+            defaultValue={selectedDepartment?._id}
+            name="_id"
+            label="Department ID"
+            isRequired
+            className="hidden"
+          />
+          <TextInput
+            defaultValue={selectedDepartment?.name}
+            name="name"
+            label="Department Name"
+            isRequired
+            actionData={actionData}
+          />
+          <TextareaInput
+            defaultValue={selectedDepartment?.description}
+            name="description"
+            label="Description"
+            isRequired
+            actionData={actionData}
+          />
+          <TextInput
+            defaultValue={selectedDepartment?.phone}
+            name="phone"
+            label="Phone"
+            isRequired
+            actionData={actionData}
+          />
         </div>
       </EditRecordModal>
 
@@ -162,6 +202,26 @@ export default function AdminDepartmentManagement() {
           />
         </div>
       </CreateRecordModal>
+
+      {/* delete department modal */}
+      <EditRecordModal
+        onCloseModal={deleteDisclosure.onClose}
+        onOpenChange={deleteDisclosure.onOpenChange}
+        isOpen={deleteDisclosure.isOpen}
+        intent="delete-department"
+        title="Delete Department"
+        actionText="Delete"
+        size="xl"
+        token={storedValue.token}
+      >
+        <p className="font-nunito">Are you sure to delete this user account?</p>
+        <TextInput
+          defaultValue={deleteId}
+          name="id"
+          className="hidden"
+          label="Delete ID"
+        />
+      </EditRecordModal>
     </main>
   );
 }
@@ -179,6 +239,54 @@ export const action: ActionFunction = async ({ request }) => {
           description: formValues.description,
           phone: formValues.phone,
         },
+        {
+          headers: {
+            Authorization: `Bearer ${formValues.token}`,
+          },
+        }
+      );
+
+      return response.data;
+    } catch (error: any) {
+      console.log(error);
+      return {
+        status: "error",
+        message: error?.response?.statusText,
+      };
+    }
+  }
+
+  if (formValues.intent === "edit-department") {
+    try {
+      const response = await axios.put(
+        `${API_BASE_URL}/api/departments/update`,
+        {
+          id: formValues._id,
+          name: formValues.name,
+          description: formValues.description,
+          phone: formValues.phone,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${formValues.token}`,
+          },
+        }
+      );
+
+      return response.data;
+    } catch (error: any) {
+      console.log(error);
+      return {
+        status: "error",
+        message: error?.response?.statusText,
+      };
+    }
+  }
+
+  if (formValues.intent === "delete-department") {
+    try {
+      const response = await axios.delete(
+        `${API_BASE_URL}/api/departments/delete/${formValues.id}`,
         {
           headers: {
             Authorization: `Bearer ${formValues.token}`,
@@ -260,7 +368,9 @@ export function ErrorBoundary() {
             <h1 className="font-montserrat font-extrabold text-5xl text-red-500 text-center">
               Unexpected Error!
             </h1>
-            <p className="font-nunito text-center text-lg">{error.message}</p>
+            <p className="font-nunito text-center text-lg line-clamp-2">
+              {error.message}
+            </p>
           </div>
           <div className="flex items-center gap-4">
             <Button

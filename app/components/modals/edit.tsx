@@ -17,6 +17,7 @@ const EditRecordModal = ({
   children,
   size,
   intent,
+  token,
   ...rest
 }: {
   isOpen: boolean;
@@ -27,6 +28,7 @@ const EditRecordModal = ({
   children?: React.ReactNode;
   size?: "sm" | "md" | "lg" | "xl";
   intent: string;
+  token: string;
 }) => {
   // state to handle loading
   const submit = useSubmit();
@@ -47,6 +49,7 @@ const EditRecordModal = ({
         {
           ...formValues,
           intent,
+          token,
         },
         {
           method: "POST",

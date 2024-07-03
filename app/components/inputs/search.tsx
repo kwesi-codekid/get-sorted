@@ -11,7 +11,7 @@ export default function SearchInput() {
       classNames={{
         base: "max-w-xs font-nunito text-sm",
         inputWrapper:
-          "bg-opacity-60 dark:bg-slate-900 dark:border border-white/20",
+          "bg-opacity-90 dark:bg-slate-900 dark:border border-white/20",
       }}
       variant="flat"
       radius="md"
@@ -19,6 +19,7 @@ export default function SearchInput() {
       onValueChange={(text: string) => navigate(`?search_term=${text}`)}
       defaultValue={searchText}
       isClearable
+      aria-labelledby="Search input"
     />
   );
 }

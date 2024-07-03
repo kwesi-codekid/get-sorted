@@ -14,7 +14,6 @@ export type UserInterface = {
   password?: string;
   phone?: string;
   department?: DepartmentInterface;
-  otp?: string;
   staffId?: string;
   role?: "admin" | "support" | "staff";
   position?: string;

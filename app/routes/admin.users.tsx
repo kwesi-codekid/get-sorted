@@ -5,9 +5,10 @@ import {
   TableRow,
   useDisclosure,
 } from "@nextui-org/react";
-import { LoaderFunction } from "@remix-run/node";
+import { ActionFunction, LoaderFunction } from "@remix-run/node";
 import {
   isRouteErrorResponse,
+  useActionData,
   useLoaderData,
   useNavigate,
   useNavigation,
@@ -23,11 +24,18 @@ import CustomTable from "~/components/sections/table";
 
 import errorIllustration from "~/assets/animated/503-error-animate.svg";
 import { ArrowLeftAnimated } from "~/components/icons/arrows";
-import useSWR from "swr";
+import useSWR, { mutate } from "swr";
 import { fetcher } from "~/data/api/departments";
 import { API_BASE_URL } from "~/data/dotenv";
 import { useLocalStorage } from "~/hooks/useLocalStorage";
 import SearchInput from "~/components/inputs/search";
+import { UserInterface } from "~/utils/types";
+import axios from "axios";
+import PasswordInput from "~/components/inputs/password";
+import { PlusIcon } from "~/components/icons/plus";
+import { useEffect, useState } from "react";
+import { DepartmentsCombobox } from "~/components/inputs/combobox";
+import { errorToast, successToast } from "~/utils/toasters";
 
 export default function AdminUserManagement() {
   const navigate = useNavigate();
@@ -35,6 +43,30 @@ export default function AdminUserManagement() {
   const { page, search_term } = useLoaderData<typeof loader>();
 
   const [storedValue] = useLocalStorage<any>("auth-token", "");
+
+  //   handle form actions
+  const actionData = useActionData<typeof action>();
+
+  useEffect(() => {
+    if (actionData) {
+      if (!actionData.errors && actionData.status === "error") {
+        errorToast(
+          "Error",
+          "An error occurred while logging you in. Please try again..."
+        );
+      }
+
+      if (actionData.status === "success") {
+        successToast("Success", actionData.message);
+        createUserDisclosure.onClose();
+        editUserDisclosure.onClose();
+        deleteUserDisclosure.onClose();
+        mutate(
+          `${API_BASE_URL}/api/users?page=${page}&search_term=${search_term}`
+        );
+      }
+    }
+  }, [actionData]);
 
   // table data
   const { data, isLoading } = useSWR(
@@ -45,15 +77,19 @@ export default function AdminUserManagement() {
     }
   );
   const loadingState = isLoading ? "loading" : "idle";
+  // end:: table data
 
   //   create user stuff
   const createUserDisclosure = useDisclosure();
+  const [key, setKey] = useState("");
 
   // edit user stuff
   const editUserDisclosure = useDisclosure();
+  const [selectedUser, setSelectedUser] = useState<UserInterface>();
 
   // delete user stuff
   const deleteUserDisclosure = useDisclosure();
+  const [deleteId, setDeleteId] = useState("");
 
   return (
     <main className="h-full flex flex-col gap-2">
@@ -64,6 +100,7 @@ export default function AdminUserManagement() {
           color="primary"
           className="font-montserrat font-semibold w-max"
           onPress={() => createUserDisclosure.onOpen()}
+          startContent={<PlusIcon />}
         >
           Create User
         </Button>
@@ -71,21 +108,40 @@ export default function AdminUserManagement() {
 
       {/* users table */}
       <CustomTable
-        columns={["First Name", "Last Name", "Email", "Phone", "Actions"]}
+        columns={[
+          "First Name",
+          "Last Name",
+          "Email",
+          "Phone",
+          "Role",
+          "Actions",
+        ]}
         page={page}
         setPage={(page) => navigate(`?page=${page}`)}
-        totalPages={data?.totalPages}
+        totalPages={data?.data?.totalPages}
         loadingState={loadingState}
       >
-        {data?.users?.map((user: any, index: number) => (
+        {data?.data?.users?.map((user: UserInterface, index: number) => (
           <TableRow key={index}>
-            <TableCell>{"user?.firstName"}</TableCell>
-            <TableCell>{"user?.firstName"}</TableCell>
-            <TableCell>{"user?.firstName"}</TableCell>
-            <TableCell>{"user?.firstName"}</TableCell>
+            <TableCell>{user?.firstName}</TableCell>
+            <TableCell>{user?.lastName}</TableCell>
+            <TableCell>{user?.email}</TableCell>
+            <TableCell>{user?.phone}</TableCell>
+            <TableCell>{user?.role}</TableCell>
             <TableCell className="flex items-center gap-2">
-              <EditButton action={() => editUserDisclosure.onOpen()} />
-              <DeleteButton action={() => editUserDisclosure.onOpen()} />
+              <EditButton
+                action={() => {
+                  setSelectedUser(user);
+                  editUserDisclosure.onOpen();
+                }}
+              />
+
+              <DeleteButton
+                action={() => {
+                  setDeleteId(user?._id as string);
+                  deleteUserDisclosure.onOpen();
+                }}
+              />
             </TableCell>
           </TableRow>
         ))}
@@ -98,17 +154,40 @@ export default function AdminUserManagement() {
         isOpen={editUserDisclosure.isOpen}
         intent="edit-user"
         title="Update User Info"
-        actionText="Submit"
+        actionText="Save Changes"
         size="xl"
+        token={storedValue.token}
       >
         <div className="grid grid-cols-2 gap-6">
-          <TextInput name="firstName" label="First Name" isRequired />
-          <TextInput name="lastName" label="Last Name" isRequired />
+          <TextInput
+            name="firstName"
+            label="First Name"
+            isRequired
+            defaultValue={selectedUser?.firstName}
+          />
+          <TextInput
+            name="lastName"
+            label="Last Name"
+            isRequired
+            defaultValue={selectedUser?.lastName}
+          />
           <TextInput name="staffId" label="Staff ID" isRequired />
           <TextInput name="position" label="Designation" isRequired />
           <TextInput name="phone" label="Phone" type="tel" isRequired />
           <TextInput name="email" label="Email" type="email" isRequired />
-          <TextInput name="department" label="Department" isRequired />
+          <TextInput
+            name="department"
+            label="Department Combobox"
+            value={key}
+            isRequired
+          />
+          <DepartmentsCombobox
+            token={storedValue.token}
+            label="Department"
+            value={key}
+            setValue={setKey}
+            isRequired
+          />
           <CustomSelect name="role" label="User Role" isRequired>
             {[
               { key: "admin", value: "admin", display_name: "Admin" },
@@ -133,13 +212,58 @@ export default function AdminUserManagement() {
         token={storedValue.token}
       >
         <div className="grid grid-cols-2 gap-6">
-          <TextInput name="firstName" label="First Name" isRequired />
-          <TextInput name="lastName" label="Last Name" isRequired />
-          <TextInput name="staffId" label="Staff ID" isRequired />
-          <TextInput name="position" label="Designation" isRequired />
-          <TextInput name="phone" label="Phone" type="tel" isRequired />
-          <TextInput name="email" label="Email" type="email" isRequired />
-          <TextInput name="department" label="Department" isRequired />
+          <TextInput
+            name="firstName"
+            label="First Name"
+            isRequired
+            actionData={actionData}
+          />
+          <TextInput
+            name="lastName"
+            actionData={actionData}
+            label="Last Name"
+            isRequired
+          />
+          <TextInput
+            name="staffId"
+            actionData={actionData}
+            label="Staff ID"
+            isRequired
+          />
+          <TextInput
+            name="position"
+            actionData={actionData}
+            label="Designation"
+            isRequired
+          />
+          <TextInput
+            name="phone"
+            actionData={actionData}
+            label="Phone"
+            type="tel"
+            isRequired
+          />
+          <TextInput
+            name="email"
+            actionData={actionData}
+            label="Email"
+            type="email"
+            isRequired
+          />
+          <TextInput
+            name="department"
+            value={key}
+            isRequired
+            className="hidden"
+          />
+          <DepartmentsCombobox
+            token={storedValue.token}
+            label="Department"
+            value={key}
+            setValue={setKey}
+            name="dept"
+            isRequired
+          />
           <CustomSelect name="role" label="User Role" isRequired>
             {[
               { key: "admin", value: "admin", display_name: "Admin" },
@@ -148,11 +272,128 @@ export default function AdminUserManagement() {
               <SelectItem key={role.key}>{role.display_name}</SelectItem>
             ))}
           </CustomSelect>
+          <PasswordInput
+            actionData={actionData}
+            name="password"
+            label="Password"
+            isRequired
+          />
         </div>
       </CreateRecordModal>
+
+      {/* delete user modal */}
+      <EditRecordModal
+        onCloseModal={deleteUserDisclosure.onClose}
+        onOpenChange={deleteUserDisclosure.onOpenChange}
+        isOpen={deleteUserDisclosure.isOpen}
+        intent="delete-user"
+        title="Delete User Account"
+        actionText="Delete"
+        size="xl"
+        token={storedValue.token}
+      >
+        <p className="font-nunito">
+          Are you sure to delete this user account? This action cannot be
+          undone!
+        </p>
+        <TextInput
+          defaultValue={deleteId}
+          name="id"
+          className="hidden"
+          label="Delete ID"
+        />
+      </EditRecordModal>
     </main>
   );
 }
+
+export const action: ActionFunction = async ({ request }) => {
+  const formData = await request.formData();
+  const payload = Object.fromEntries(formData.entries());
+
+  if (payload.intent === "create-user") {
+    try {
+      const response = await axios.post(
+        `${API_BASE_URL}/api/users/create`,
+        {
+          firstName: payload.firstName as string,
+          lastName: payload.lastName as string,
+          phone: payload.phone as string,
+          department: payload.department as string,
+          position: payload.position as string,
+          staffId: payload.staffId as string,
+          email: payload.email as string,
+          password: payload.password as string,
+          role: payload.role as string,
+          photo: "",
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${payload.token}`,
+          },
+        }
+      );
+
+      return response.data;
+    } catch (error: any) {
+      console.log(error);
+      return {
+        status: "error",
+        message: error?.response?.statusText,
+      };
+    }
+  }
+
+  if (payload.intent === "edit-department") {
+    try {
+      const response = await axios.put(
+        `${API_BASE_URL}/api/departments/update`,
+        {
+          _id: payload._id,
+          name: payload.name,
+          description: payload.description,
+          phone: payload.phone,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${payload.token}`,
+          },
+        }
+      );
+
+      return response.data;
+    } catch (error: any) {
+      console.log(error);
+      return {
+        status: "error",
+        message: error?.response?.statusText,
+      };
+    }
+  }
+
+  if (payload.intent === "delete-user") {
+    try {
+      const response = await axios.delete(
+        `${API_BASE_URL}/api/users/delete/${payload.id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${payload.token}`,
+          },
+        }
+      );
+
+      return response.data;
+    } catch (error: any) {
+      console.log(error);
+      return {
+        status: "error",
+        message: error?.response?.statusText,
+      };
+    }
+  }
+
+  return {};
+};
 
 export const loader: LoaderFunction = ({ request }) => {
   const url = new URL(request.url);
@@ -219,7 +460,9 @@ export function ErrorBoundary() {
             <h1 className="font-montserrat font-extrabold text-5xl text-red-500 text-center">
               Unexpected Error!
             </h1>
-            <p className="font-nunito text-center text-lg">{error.message}</p>
+            <p className="font-nunito text-center text-lg line-clamp-2">
+              {error.message}
+            </p>
           </div>
           <div className="flex items-center gap-4">
             <Button
