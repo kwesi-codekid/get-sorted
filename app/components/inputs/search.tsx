@@ -17,7 +17,7 @@ export default function SearchInput() {
       radius="md"
       placeholder="Search here..."
       onValueChange={(text: string) => navigate(`?search_term=${text}`)}
-      value={searchText}
+      defaultValue={searchText}
       isClearable
     />
   );

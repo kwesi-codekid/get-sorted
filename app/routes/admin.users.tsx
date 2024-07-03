@@ -130,6 +130,7 @@ export default function AdminUserManagement() {
         title="Create New User"
         actionText="Submit"
         size="xl"
+        token={storedValue.token}
       >
         <div className="grid grid-cols-2 gap-6">
           <TextInput name="firstName" label="First Name" isRequired />
@@ -156,7 +157,7 @@ export default function AdminUserManagement() {
 export const loader: LoaderFunction = ({ request }) => {
   const url = new URL(request.url);
   const page = parseInt(url.searchParams.get("page") as string) || 1;
-  const search_term = url.searchParams.get("search_term") as string;
+  const search_term = (url.searchParams.get("search_term") as string) || "";
 
   console.log({ page, search_term });
 

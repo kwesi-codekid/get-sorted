@@ -1,7 +1,8 @@
 import { Button, TableCell, TableRow, useDisclosure } from "@nextui-org/react";
-import { LoaderFunction } from "@remix-run/node";
+import { ActionFunction, LoaderFunction } from "@remix-run/node";
 import {
   isRouteErrorResponse,
+  useActionData,
   useLoaderData,
   useNavigate,
   useNavigation,
@@ -18,10 +19,13 @@ import { ArrowLeftAnimated } from "~/components/icons/arrows";
 import { useLocalStorage } from "~/hooks/useLocalStorage";
 import { API_BASE_URL } from "~/data/dotenv";
 import { fetcher } from "~/data/api/departments";
-import useSWR from "swr";
+import useSWR, { mutate } from "swr";
 import { DepartmentInterface } from "~/utils/types";
 import TextareaInput from "~/components/inputs/textarea";
 import SearchInput from "~/components/inputs/search";
+import axios from "axios";
+import { useEffect } from "react";
+import { errorToast, successToast } from "~/utils/toasters";
 
 export default function AdminDepartmentManagement() {
   const navigate = useNavigate();
@@ -29,6 +33,29 @@ export default function AdminDepartmentManagement() {
   const { page, search_term } = useLoaderData<typeof loader>();
 
   const [storedValue] = useLocalStorage<any>("auth-token", "");
+
+  //   handle form actions
+  const actionData = useActionData<typeof action>();
+
+  useEffect(() => {
+    if (actionData) {
+      if (!actionData.errors && actionData.status === "error") {
+        errorToast(
+          "Error",
+          "An error occurred while logging you in. Please try again..."
+        );
+      }
+
+      if (actionData.status === "success") {
+        successToast("Success", actionData.message);
+        createDisclosure.onClose();
+        editDisclosure.onClose();
+        mutate(
+          `${API_BASE_URL}/api/departments?page=${page}&search_term=${search_term}`
+        );
+      }
+    }
+  }, [actionData]);
 
   // table data
   const { data, isLoading } = useSWR(
@@ -111,17 +138,66 @@ export default function AdminDepartmentManagement() {
         intent="create-department"
         title="Create New Department"
         actionText="Submit"
-        size="xl"
+        size="md"
+        token={storedValue.token}
       >
         <div className="grid grid-cols-1 gap-6">
-          <TextInput name="name" label="Department Name" isRequired />
-          <TextareaInput name="description" label="Description" isRequired />
-          <TextInput name="phone" label="Phone" isRequired />
+          <TextInput
+            actionData={actionData}
+            name="name"
+            label="Department Name"
+            isRequired
+          />
+          <TextareaInput
+            actionData={actionData}
+            name="description"
+            label="Description"
+            isRequired
+          />
+          <TextInput
+            actionData={actionData}
+            name="phone"
+            label="Phone"
+            isRequired
+          />
         </div>
       </CreateRecordModal>
     </main>
   );
 }
+
+export const action: ActionFunction = async ({ request }) => {
+  const formData = await request.formData();
+  const formValues = Object.fromEntries(formData.entries());
+
+  if (formValues.intent === "create-department") {
+    try {
+      const response = await axios.post(
+        `${API_BASE_URL}/api/departments/create`,
+        {
+          name: formValues.name,
+          description: formValues.description,
+          phone: formValues.phone,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${formValues.token}`,
+          },
+        }
+      );
+
+      return response.data;
+    } catch (error: any) {
+      console.log(error);
+      return {
+        status: "error",
+        message: error?.response?.statusText,
+      };
+    }
+  }
+
+  return {};
+};
 
 export const loader: LoaderFunction = async ({ request }) => {
   const url = new URL(request.url);

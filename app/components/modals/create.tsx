@@ -16,6 +16,7 @@ const CreateRecordModal = ({
   actionText,
   children,
   size,
+  token,
   intent,
   ...rest
 }: {
@@ -27,6 +28,7 @@ const CreateRecordModal = ({
   children?: React.ReactNode;
   size?: "sm" | "md" | "lg" | "xl";
   intent: string;
+  token: string;
 }) => {
   // state to handle loading
   const submit = useSubmit();
@@ -47,6 +49,7 @@ const CreateRecordModal = ({
         {
           ...formValues,
           intent,
+          token,
         },
         {
           method: "POST",
