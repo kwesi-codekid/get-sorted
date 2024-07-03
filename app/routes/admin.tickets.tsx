@@ -185,7 +185,7 @@ export default function AdminTicketManagement() {
               >
                 Open
               </Button>
-              {ticket?.assignee && (
+              {!ticket?.assignee && (
                 <Button
                   size="sm"
                   variant="flat"

@@ -4,6 +4,7 @@ import {
   Form,
   isRouteErrorResponse,
   useActionData,
+  useLoaderData,
   useNavigate,
   useNavigation,
   useRouteError,
@@ -24,10 +25,39 @@ import { LoginAnimatedIcon } from "~/components/icons/open";
 import { ThreeDotsBounceIcon } from "~/components/icons/chat";
 import React, { useEffect, useState } from "react";
 import { formatResponse } from "~/utils/string-manipulation";
+import { errorToast } from "~/utils/toasters";
+import { TicketInterface } from "~/utils/types";
 
 export default function StaffAskAI() {
+  const { ticket_id } = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
+
+  const [isLoading, setIsLoading] = useState(false);
+  const [ticketInfo, setTicketInfo] = useState<TicketInterface>();
+  const fetchTicketDetails = async (ticket_id: string, token: string) => {
+    try {
+      setIsLoading(true);
+
+      const response = await axios.get(
+        `${API_BASE_URL}/api/tickets/${ticket_id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      setTicketInfo(response.data?.data);
+    } catch (error: any) {
+      errorToast(
+        error?.message,
+        "An error occurred while fetching ticket details..."
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const [formattedSections, setFormattedSections] = useState<any>();
   useEffect(() => {
@@ -92,45 +122,19 @@ export default function StaffAskAI() {
   );
 }
 
+export const loader: LoaderFunction = async ({ request, params }) => {
+  const { ticket_id } = params;
+
+  return {
+    ticket_id,
+  };
+};
+
 export const action: ActionFunction = async ({ request }) => {
   const formData = await request.formData();
   const formValues = Object.fromEntries(formData.entries());
 
   try {
-    const apiKey = "AIzaSyC_0TEHGdldMHXgaDyoCXmiZoJXDcEGv9g";
-    const genAI = new GoogleGenerativeAI(apiKey as string);
-
-    const model = genAI.getGenerativeModel({
-      model: "gemini-1.5-flash",
-    });
-
-    const generationConfig = {
-      temperature: 1,
-      topP: 0.95,
-      topK: 64,
-      maxOutputTokens: 8192,
-      responseMimeType: "text/plain",
-    };
-
-    async function run() {
-      const parts = [
-        {
-          text: "You are a support assist in an organization using a dedicated helpdesk ticketing software. Your job is to provide accurate, concise assistance and suggestions to problems being faced by the staff within the organization. Almost all the staff uses Windows PC. If there's the need to contact the IT Department, they should call on +233594213496",
-        },
-        {
-          text: `input: ${formValues.prompt}`,
-        },
-        { text: "output: " },
-      ];
-
-      const result = await model.generateContent({
-        contents: [{ role: "user", parts }],
-        generationConfig,
-      });
-      return result.response.text();
-    }
-
-    return run();
   } catch (error) {
     console.error(error);
     return { error };
