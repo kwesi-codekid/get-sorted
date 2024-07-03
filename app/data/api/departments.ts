@@ -1,36 +1,26 @@
 import axios from "axios";
-import { API_BASE_URL } from "../dotenv";
-import { ActionDataInterface, DepartmentInterface } from "~/utils/types";
+import { errorToast } from "~/utils/toasters";
 
-export const fetchDepartments = async ({
-  token,
-  search_term,
-  page,
-}: {
-  token: string;
-  search_term?: string;
-  page?: string | number;
-}): Promise<DepartmentInterface | ActionDataInterface | undefined> => {
-  console.log({ token });
+// begin:: fetcher
 
+export const fetcher = (token: string) => async (url: string) => {
   try {
-    const response = await axios.get(
-      `https://get-sorted-backend.vercel.app/api/departments?search_term=${search_term}&page=${page}`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      }
-    );
+    const response = await axios.get(url, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    console.log(response.data);
 
-    return response?.data as DepartmentInterface;
+    return response.data;
   } catch (error: any) {
-    return {
-      status: "error",
-      message:
-        error.response.message ||
-        "An error occurred while fetching departments",
-    };
+    console.log(error);
+
+    errorToast(
+      error.message,
+      "An unexpected error occurred while fetching data. Please try again..."
+    );
   }
 };
+
+// end:: fetcher
