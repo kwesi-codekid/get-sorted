@@ -86,6 +86,10 @@ export default function AdminUserManagement() {
   // edit user stuff
   const editUserDisclosure = useDisclosure();
   const [selectedUser, setSelectedUser] = useState<UserInterface>();
+  const [editKey, setEditKey] = useState("");
+  useEffect(() => {
+    if (!editUserDisclosure.isOpen) setEditKey("");
+  }, [editUserDisclosure.onOpenChange]);
 
   // delete user stuff
   const deleteUserDisclosure = useDisclosure();
@@ -132,6 +136,7 @@ export default function AdminUserManagement() {
               <EditButton
                 action={() => {
                   setSelectedUser(user);
+                  setEditKey(user?.department?._id as string);
                   editUserDisclosure.onOpen();
                 }}
               />
@@ -160,35 +165,76 @@ export default function AdminUserManagement() {
       >
         <div className="grid grid-cols-2 gap-6">
           <TextInput
+            name="id"
+            defaultValue={selectedUser?._id}
+            className="hidden"
+          />
+          <TextInput
             name="firstName"
             label="First Name"
             isRequired
             defaultValue={selectedUser?.firstName}
+            actionData={actionData}
           />
           <TextInput
             name="lastName"
             label="Last Name"
             isRequired
             defaultValue={selectedUser?.lastName}
+            actionData={actionData}
           />
-          <TextInput name="staffId" label="Staff ID" isRequired />
-          <TextInput name="position" label="Designation" isRequired />
-          <TextInput name="phone" label="Phone" type="tel" isRequired />
-          <TextInput name="email" label="Email" type="email" isRequired />
+          <TextInput
+            name="staffId"
+            label="Staff ID"
+            isRequired
+            defaultValue={selectedUser?.staffId}
+            actionData={actionData}
+          />
+          <TextInput
+            name="position"
+            label="Designation"
+            isRequired
+            defaultValue={selectedUser?.position}
+            actionData={actionData}
+          />
+          <TextInput
+            name="phone"
+            label="Phone"
+            type="tel"
+            isRequired
+            defaultValue={selectedUser?.phone}
+            actionData={actionData}
+          />
+          <TextInput
+            name="email"
+            label="Email"
+            type="email"
+            isRequired
+            defaultValue={selectedUser?.email}
+            actionData={actionData}
+          />
           <TextInput
             name="department"
             label="Department Combobox"
-            value={key}
+            value={editKey}
             isRequired
+            className="hidden"
           />
           <DepartmentsCombobox
             token={storedValue.token}
             label="Department"
-            value={key}
-            setValue={setKey}
+            value={editKey as string}
+            setValue={setEditKey}
             isRequired
+            actionData={actionData}
           />
-          <CustomSelect name="role" label="User Role" isRequired>
+          <CustomSelect
+            name="role"
+            label="User Role"
+            isRequired
+            defaultSelectedKeys={[selectedUser?.role]}
+            actionData={actionData}
+          >
             {[
               { key: "admin", value: "admin", display_name: "Admin" },
               { key: "support", value: "support", display_name: "Support" },
@@ -344,15 +390,21 @@ export const action: ActionFunction = async ({ request }) => {
     }
   }
 
-  if (payload.intent === "edit-department") {
+  if (payload.intent === "edit-user") {
     try {
       const response = await axios.put(
-        `${API_BASE_URL}/api/departments/update`,
+        `${API_BASE_URL}/api/users/update`,
         {
-          _id: payload._id,
-          name: payload.name,
-          description: payload.description,
-          phone: payload.phone,
+          firstName: payload.firstName as string,
+          lastName: payload.lastName as string,
+          phone: payload.phone as string,
+          department: payload.department as string,
+          position: payload.position as string,
+          staffId: payload.staffId as string,
+          email: payload.email as string,
+          password: payload.password as string,
+          role: payload.role as string,
+          photo: "",
         },
         {
           headers: {
