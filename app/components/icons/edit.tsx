@@ -4,6 +4,7 @@ export const AnimatedEditIcon = (props: React.SVGProps<SVGSVGElement>) => (
     width="1em"
     height="1em"
     viewBox="0 0 24 24"
+    {...props}
   >
     <path fill="currentColor" fillOpacity={0} d="M20 7L17 4L15 6L18 9L20 7Z">
       <animate
