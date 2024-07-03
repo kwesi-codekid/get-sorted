@@ -1,6 +1,7 @@
 import {
   Button,
   Chip,
+  SelectItem,
   TableCell,
   TableRow,
   useDisclosure,
@@ -35,6 +36,8 @@ import { errorToast, successToast } from "~/utils/toasters";
 import moment from "moment";
 import { UserAnimated } from "~/components/icons/user";
 import { LoginAnimatedIcon } from "~/components/icons/open";
+import CustomSelect from "~/components/inputs/select";
+import { PlusIcon } from "~/components/icons/plus";
 
 export default function AdminTicketManagement() {
   const navigate = useNavigate();
@@ -98,6 +101,7 @@ export default function AdminTicketManagement() {
           color="primary"
           className="font-montserrat font-semibold w-max"
           onPress={() => createDisclosure.onOpen()}
+          startContent={<PlusIcon />}
         >
           Raise Ticket
         </Button>
@@ -185,16 +189,14 @@ export default function AdminTicketManagement() {
               >
                 Open
               </Button>
-              {!ticket?.assignee && (
-                <Button
-                  size="sm"
-                  variant="flat"
-                  color="primary"
-                  startContent={<UserAnimated className="size-3.5" />}
-                >
-                  Assign
-                </Button>
-              )}
+              <Button
+                size="sm"
+                variant="flat"
+                color="primary"
+                startContent={<UserAnimated className="size-3.5" />}
+              >
+                {!ticket?.assignee ? "Assign" : "Reassign"}
+              </Button>
             </TableCell>
           </TableRow>
         ))}
@@ -248,8 +250,8 @@ export default function AdminTicketManagement() {
         onCloseModal={createDisclosure.onClose}
         onOpenChange={createDisclosure.onOpenChange}
         isOpen={createDisclosure.isOpen}
-        intent="create-department"
-        title="Create New Department"
+        intent="raise-ticket"
+        title="Raise New  Ticket"
         actionText="Submit"
         size="md"
         token={storedValue.token}
@@ -257,22 +259,54 @@ export default function AdminTicketManagement() {
         <div className="grid grid-cols-1 gap-6">
           <TextInput
             actionData={actionData}
-            name="name"
-            label="Department Name"
+            className="hidden"
+            name="reporter"
+            label="Reporter"
+            isRequired
+            value={storedValue?.user?._id}
+          />
+          <TextInput
+            actionData={actionData}
+            name="title"
+            label="Title"
             isRequired
           />
           <TextareaInput
             actionData={actionData}
             name="description"
             label="Description"
-            isRequired
           />
-          <TextInput
+          <CustomSelect
+            name="priority"
+            label="Priority"
+            isRequired
             actionData={actionData}
-            name="phone"
-            label="Phone"
-            isRequired
-          />
+          >
+            {[
+              {
+                key: "low",
+                value: "low",
+                display_name: "Low",
+              },
+              {
+                key: "medium",
+                value: "medium",
+                display_name: "Medium",
+              },
+              {
+                key: "high",
+                value: "high",
+                display_name: "High",
+              },
+              {
+                key: "urgent",
+                value: "urgent",
+                display_name: "Urgent",
+              },
+            ].map((role) => (
+              <SelectItem key={role.key}>{role.display_name}</SelectItem>
+            ))}
+          </CustomSelect>
         </div>
       </CreateRecordModal>
 
@@ -303,14 +337,16 @@ export const action: ActionFunction = async ({ request }) => {
   const formData = await request.formData();
   const formValues = Object.fromEntries(formData.entries());
 
-  if (formValues.intent === "create-department") {
+  if (formValues.intent === "raise-ticket") {
     try {
       const response = await axios.post(
-        `${API_BASE_URL}/api/departments/create`,
+        `${API_BASE_URL}/api/tickets/create`,
         {
-          name: formValues.name,
+          title: formValues.title,
           description: formValues.description,
-          phone: formValues.phone,
+          priority: formValues.priority,
+          reporter: formValues.reporter,
+          files: "[]",
         },
         {
           headers: {
