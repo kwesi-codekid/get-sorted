@@ -185,7 +185,9 @@ export default function AdminTicketManagement() {
               </Chip>
             </TableCell>
             <TableCell className="text-xs">
-              {ticket?.assignee?.firstName} {ticket?.assignee?.lastName}
+              {ticket?.assignee
+                ? ticket?.assignee?.firstName + " " + ticket?.assignee?.lastName
+                : "Unassigned"}
             </TableCell>
             <TableCell className="flex items-center gap-2">
               <Button
@@ -193,6 +195,9 @@ export default function AdminTicketManagement() {
                 variant="flat"
                 color="success"
                 startContent={<LoginAnimatedIcon className="size-3.5" />}
+                onPress={() => {
+                  navigate(`/admin/tickets/${ticket._id}`);
+                }}
               >
                 Open
               </Button>
