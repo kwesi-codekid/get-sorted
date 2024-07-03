@@ -1,4 +1,10 @@
-import { Button, TableCell, TableRow, useDisclosure } from "@nextui-org/react";
+import {
+  Button,
+  SelectItem,
+  TableCell,
+  TableRow,
+  useDisclosure,
+} from "@nextui-org/react";
 import { ActionFunction, LoaderFunction } from "@remix-run/node";
 import {
   isRouteErrorResponse,
@@ -20,14 +26,20 @@ import { useLocalStorage } from "~/hooks/useLocalStorage";
 import { API_BASE_URL } from "~/data/dotenv";
 import { fetcher } from "~/data/api/departments";
 import useSWR, { mutate } from "swr";
-import { DepartmentInterface } from "~/utils/types";
+import { DepartmentInterface, FAQInterface } from "~/utils/types";
 import TextareaInput from "~/components/inputs/textarea";
 import SearchInput from "~/components/inputs/search";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { errorToast, successToast } from "~/utils/toasters";
+import { PlusIcon } from "~/components/icons/plus";
+import moment from "moment";
+import CustomSelect from "~/components/inputs/select";
 
-export default function AdminDepartmentManagement() {
+const ReactQuill =
+  typeof window === "object" ? require("react-quill") : () => false;
+
+export default function AdminFAQsManagement() {
   const navigate = useNavigate();
   const navigation = useNavigation();
   const { page, search_term } = useLoaderData<typeof loader>();
@@ -52,7 +64,7 @@ export default function AdminDepartmentManagement() {
         editDisclosure.onClose();
         deleteDisclosure.onClose();
         mutate(
-          `${API_BASE_URL}/api/departments?page=${page}&search_term=${search_term}`
+          `${API_BASE_URL}/api/faqs?page=${page}&search_term=${search_term}`
         );
       }
     }
@@ -60,7 +72,7 @@ export default function AdminDepartmentManagement() {
 
   // table data
   const { data, isLoading } = useSWR(
-    `${API_BASE_URL}/api/departments?page=${page}&search_term=${search_term}`,
+    `${API_BASE_URL}/api/faqs?page=${page}&search_term=${search_term}`,
     fetcher(storedValue.token),
     {
       keepPreviousData: true,
@@ -70,11 +82,11 @@ export default function AdminDepartmentManagement() {
 
   //   create department stuff
   const createDisclosure = useDisclosure();
+  const [content, setContent] = useState("");
 
   // edit department stuff
   const editDisclosure = useDisclosure();
-  const [selectedDepartment, setSelectedDepartment] =
-    useState<DepartmentInterface>();
+  const [selectedFAQ, setSelectedFAQ] = useState<FAQInterface>();
 
   // delete department stuff
   const deleteDisclosure = useDisclosure();
@@ -89,117 +101,184 @@ export default function AdminDepartmentManagement() {
           color="primary"
           className="font-montserrat font-semibold w-max"
           onPress={() => createDisclosure.onOpen()}
+          startContent={<PlusIcon />}
         >
-          New Department
+          Create FAQ
         </Button>
       </div>
 
       {/* departments table */}
       <CustomTable
-        columns={["Name", "Description", "Phone", "Actions"]}
+        columns={["Timestamp", "Question", "Category", "Actions"]}
         page={page}
         setPage={(page) => navigate(`?page=${page}`)}
         totalPages={data?.totalPages || 1}
         loadingState={loadingState}
       >
-        {data?.departments?.map(
-          (department: DepartmentInterface, index: number) => (
-            <TableRow key={index}>
-              <TableCell>{department?.name}</TableCell>
-              <TableCell>{department?.description}</TableCell>
-              <TableCell>{department?.phone}</TableCell>
-              <TableCell className="flex items-center gap-2">
-                <EditButton
-                  action={() => {
-                    setSelectedDepartment(department);
-                    editDisclosure.onOpen();
-                  }}
-                />
-                <DeleteButton
-                  action={() => {
-                    setDeleteId(department?._id as string);
-                    deleteDisclosure.onOpen();
-                  }}
-                />
-              </TableCell>
-            </TableRow>
-          )
-        )}
+        {data?.faqs?.map((faq: FAQInterface, index: number) => (
+          <TableRow key={index}>
+            <TableCell>{moment(faq?.createdAt).format("DD-MM-YYYY")}</TableCell>
+            <TableCell>{faq?.question}</TableCell>
+            <TableCell>{faq?.category}</TableCell>
+            <TableCell className="flex items-center gap-2">
+              <EditButton
+                action={() => {
+                  setSelectedFAQ(faq);
+                  setContent(faq?.answer);
+                  editDisclosure.onOpen();
+                }}
+              />
+              <DeleteButton
+                action={() => {
+                  setDeleteId(faq?._id as string);
+                  deleteDisclosure.onOpen();
+                }}
+              />
+            </TableCell>
+          </TableRow>
+        ))}
       </CustomTable>
 
-      {/* edit department modal */}
+      {/* edit faq modal */}
       <EditRecordModal
         onCloseModal={editDisclosure.onClose}
         onOpenChange={editDisclosure.onOpenChange}
         isOpen={editDisclosure.isOpen}
-        intent="edit-department"
-        title="Update Department Info"
+        intent="edit-faq"
+        title="Update Frequently Asked Question"
         actionText="Save Changes"
-        size="xl"
+        size="4xl"
         token={storedValue.token}
       >
-        <div className="grid grid-cols-1 gap-6">
-          <TextInput
-            defaultValue={selectedDepartment?._id}
-            name="_id"
-            label="Department ID"
-            isRequired
-            className="hidden"
-          />
-          <TextInput
-            defaultValue={selectedDepartment?.name}
-            name="name"
-            label="Department Name"
-            isRequired
-            actionData={actionData}
-          />
-          <TextareaInput
-            defaultValue={selectedDepartment?.description}
-            name="description"
-            label="Description"
-            isRequired
-            actionData={actionData}
-          />
-          <TextInput
-            defaultValue={selectedDepartment?.phone}
-            name="phone"
-            label="Phone"
-            isRequired
-            actionData={actionData}
-          />
+        <div className="grid grid-cols-2 gap-6">
+          <div className="flex flex-col gap-6">
+            <TextInput
+              name="id"
+              defaultValue={selectedFAQ?._id}
+              className="hidden"
+            />
+            <TextareaInput
+              name="question"
+              label="Question"
+              isRequired
+              actionData={actionData}
+              defaultValue={selectedFAQ?.question}
+            />
+            <CustomSelect
+              name="category"
+              label="Category"
+              isRequired
+              actionData={actionData}
+              defaultSelectedKeys={[selectedFAQ?.category]}
+            >
+              {[
+                {
+                  key: "software",
+                  value: "software",
+                  display_name: "Software",
+                },
+                {
+                  key: "hardware",
+                  value: "hardware",
+                  display_name: "Hardware",
+                },
+                {
+                  key: "networking",
+                  value: "networking",
+                  display_name: "Networking",
+                },
+                {
+                  key: "portal",
+                  value: "portal",
+                  display_name: "School Portal",
+                },
+              ].map((role) => (
+                <SelectItem key={role.key}>{role.display_name}</SelectItem>
+              ))}
+            </CustomSelect>
+          </div>
+          <>
+            <div className="flex flex-col gap-2">
+              <h4 className="text-sm md:text-base font-medium font-sen text-slate-800 dark:text-slate-100">
+                Answer Content
+              </h4>
+              <TextInput name="answer" value={content} className="hidden" />
+              <ReactQuill
+                required
+                value={content}
+                onChange={setContent}
+                className="h-[55vh] !font-nunito"
+              />
+            </div>
+          </>
         </div>
       </EditRecordModal>
 
-      {/* create department modal */}
+      {/* create faq modal */}
       <CreateRecordModal
         onCloseModal={createDisclosure.onClose}
         onOpenChange={createDisclosure.onOpenChange}
         isOpen={createDisclosure.isOpen}
-        intent="create-department"
-        title="Create New Department"
+        intent="create-faq"
+        title="New Frequently Asked Question"
         actionText="Submit"
-        size="md"
+        size="4xl"
         token={storedValue.token}
       >
-        <div className="grid grid-cols-1 gap-6">
-          <TextInput
-            actionData={actionData}
-            name="name"
-            label="Department Name"
-            isRequired
-          />
-          <TextareaInput
-            actionData={actionData}
-            name="description"
-            label="Description"
-            isRequired
-          />
-          <TextInput
-            actionData={actionData}
-            name="phone"
-            label="Phone"
-            isRequired
-          />
+        <div className="grid grid-cols-2 gap-6">
+          <div className="flex flex-col gap-6">
+            <TextareaInput
+              name="question"
+              label="Question"
+              isRequired
+              actionData={actionData}
+            />
+            <CustomSelect
+              name="category"
+              label="Category"
+              isRequired
+              actionData={actionData}
+            >
+              {[
+                {
+                  key: "software",
+                  value: "software",
+                  display_name: "Software",
+                },
+                {
+                  key: "hardware",
+                  value: "hardware",
+                  display_name: "Hardware",
+                },
+                {
+                  key: "networking",
+                  value: "networking",
+                  display_name: "Networking",
+                },
+                {
+                  key: "portal",
+                  value: "portal",
+                  display_name: "School Portal",
+                },
+              ].map((role) => (
+                <SelectItem key={role.key}>{role.display_name}</SelectItem>
+              ))}
+            </CustomSelect>
+          </div>
+          <>
+            <div className="flex flex-col gap-2">
+              <h4 className="text-sm md:text-base font-medium font-sen text-slate-800 dark:text-slate-100">
+                Answer Content
+              </h4>
+              <TextInput name="answer" value={content} className="hidden" />
+              <ReactQuill
+                required
+                value={content}
+                onChange={setContent}
+                className="h-[55vh] !font-nunito"
+              />
+            </div>
+          </>
         </div>
       </CreateRecordModal>
 
@@ -208,13 +287,13 @@ export default function AdminDepartmentManagement() {
         onCloseModal={deleteDisclosure.onClose}
         onOpenChange={deleteDisclosure.onOpenChange}
         isOpen={deleteDisclosure.isOpen}
-        intent="delete-department"
-        title="Delete Department"
+        intent="delete-faq"
+        title="Delete Frequently Asked Question"
         actionText="Delete"
         size="xl"
         token={storedValue.token}
       >
-        <p className="font-nunito">Are you sure to delete this user account?</p>
+        <p className="font-nunito">Are you sure to delete this FAQ?</p>
         <TextInput
           defaultValue={deleteId}
           name="id"
@@ -230,14 +309,14 @@ export const action: ActionFunction = async ({ request }) => {
   const formData = await request.formData();
   const formValues = Object.fromEntries(formData.entries());
 
-  if (formValues.intent === "create-department") {
+  if (formValues.intent === "create-faq") {
     try {
       const response = await axios.post(
-        `${API_BASE_URL}/api/departments/create`,
+        `${API_BASE_URL}/api/faqs/create`,
         {
-          name: formValues.name,
-          description: formValues.description,
-          phone: formValues.phone,
+          question: formValues.question,
+          category: formValues.category,
+          answer: formValues.answer,
         },
         {
           headers: {
@@ -256,15 +335,15 @@ export const action: ActionFunction = async ({ request }) => {
     }
   }
 
-  if (formValues.intent === "edit-department") {
+  if (formValues.intent === "edit-faq") {
     try {
       const response = await axios.put(
-        `${API_BASE_URL}/api/departments/update`,
+        `${API_BASE_URL}/api/faqs/update`,
         {
-          id: formValues._id,
-          name: formValues.name,
-          description: formValues.description,
-          phone: formValues.phone,
+          id: formValues.id,
+          question: formValues.question,
+          category: formValues.category,
+          answer: formValues.answer,
         },
         {
           headers: {
@@ -283,10 +362,10 @@ export const action: ActionFunction = async ({ request }) => {
     }
   }
 
-  if (formValues.intent === "delete-department") {
+  if (formValues.intent === "delete-faq") {
     try {
       const response = await axios.delete(
-        `${API_BASE_URL}/api/departments/delete/${formValues.id}`,
+        `${API_BASE_URL}/api/faqs/delete/${formValues.id}`,
         {
           headers: {
             Authorization: `Bearer ${formValues.token}`,

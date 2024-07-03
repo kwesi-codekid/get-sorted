@@ -1,4 +1,10 @@
-import { Button, TableCell, TableRow, useDisclosure } from "@nextui-org/react";
+import {
+  Button,
+  Chip,
+  TableCell,
+  TableRow,
+  useDisclosure,
+} from "@nextui-org/react";
 import { ActionFunction, LoaderFunction } from "@remix-run/node";
 import {
   isRouteErrorResponse,
@@ -20,14 +26,17 @@ import { useLocalStorage } from "~/hooks/useLocalStorage";
 import { API_BASE_URL } from "~/data/dotenv";
 import { fetcher } from "~/data/api/departments";
 import useSWR, { mutate } from "swr";
-import { DepartmentInterface } from "~/utils/types";
+import { DepartmentInterface, TicketInterface } from "~/utils/types";
 import TextareaInput from "~/components/inputs/textarea";
 import SearchInput from "~/components/inputs/search";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { errorToast, successToast } from "~/utils/toasters";
+import moment from "moment";
+import { UserAnimated } from "~/components/icons/user";
+import { LoginAnimatedIcon } from "~/components/icons/open";
 
-export default function AdminDepartmentManagement() {
+export default function AdminTicketManagement() {
   const navigate = useNavigate();
   const navigation = useNavigation();
   const { page, search_term } = useLoaderData<typeof loader>();
@@ -52,7 +61,7 @@ export default function AdminDepartmentManagement() {
         editDisclosure.onClose();
         deleteDisclosure.onClose();
         mutate(
-          `${API_BASE_URL}/api/departments?page=${page}&search_term=${search_term}`
+          `${API_BASE_URL}/api/tickets?page=${page}&search_term=${search_term}`
         );
       }
     }
@@ -60,7 +69,7 @@ export default function AdminDepartmentManagement() {
 
   // table data
   const { data, isLoading } = useSWR(
-    `${API_BASE_URL}/api/departments?page=${page}&search_term=${search_term}`,
+    `${API_BASE_URL}/api/tickets?page=${page}&search_term=${search_term}`,
     fetcher(storedValue.token),
     {
       keepPreviousData: true,
@@ -90,41 +99,105 @@ export default function AdminDepartmentManagement() {
           className="font-montserrat font-semibold w-max"
           onPress={() => createDisclosure.onOpen()}
         >
-          New Department
+          Raise Ticket
         </Button>
       </div>
 
       {/* departments table */}
       <CustomTable
-        columns={["Name", "Description", "Phone", "Actions"]}
+        columns={[
+          "Timestamp",
+          "Title",
+          "Reporter",
+          "Priority",
+          "Status",
+          "Assignee",
+          "Actions",
+        ]}
         page={page}
         setPage={(page) => navigate(`?page=${page}`)}
         totalPages={data?.totalPages || 1}
         loadingState={loadingState}
       >
-        {data?.departments?.map(
-          (department: DepartmentInterface, index: number) => (
-            <TableRow key={index}>
-              <TableCell>{department?.name}</TableCell>
-              <TableCell>{department?.description}</TableCell>
-              <TableCell>{department?.phone}</TableCell>
-              <TableCell className="flex items-center gap-2">
-                <EditButton
-                  action={() => {
-                    setSelectedDepartment(department);
-                    editDisclosure.onOpen();
-                  }}
-                />
-                <DeleteButton
-                  action={() => {
-                    setDeleteId(department?._id as string);
-                    deleteDisclosure.onOpen();
-                  }}
-                />
-              </TableCell>
-            </TableRow>
-          )
-        )}
+        {data?.data?.tickets?.map((ticket: TicketInterface, index: number) => (
+          <TableRow key={index}>
+            <TableCell className="text-xs">
+              {moment(ticket?.createdAt).format("DD-MM-YYYY hh:mm")}
+            </TableCell>
+            <TableCell className="text-xs">{ticket?.title}</TableCell>
+            <TableCell className="text-xs">
+              {ticket?.reporter?.firstName} {ticket?.reporter?.lastName}
+            </TableCell>
+
+            <TableCell className="text-xs">
+              <Chip
+                size="sm"
+                variant="dot"
+                color={
+                  ticket?.priority === "low"
+                    ? "success"
+                    : ticket?.priority === "medium"
+                    ? "primary"
+                    : ticket?.priority === "high"
+                    ? "warning"
+                    : "danger"
+                }
+                classNames={{
+                  base:
+                    ticket?.priority === "low"
+                      ? "border-[#17c964]"
+                      : ticket?.priority === "medium"
+                      ? "border-[#006fee]"
+                      : ticket?.priority === "high"
+                      ? "border-[#f5a524]"
+                      : "border-[#f31260]",
+                }}
+              >
+                {ticket?.priority}
+              </Chip>
+            </TableCell>
+            <TableCell className="text-xs">
+              <Chip
+                color={
+                  ticket?.status === "open"
+                    ? "danger"
+                    : ticket?.status === "in-progress"
+                    ? "warning"
+                    : ticket?.status === "resolved"
+                    ? "success"
+                    : "primary"
+                }
+                size="sm"
+                variant="flat"
+              >
+                {ticket?.status}
+              </Chip>
+            </TableCell>
+            <TableCell className="text-xs">
+              {ticket?.assignee?.firstName} {ticket?.assignee?.lastName}
+            </TableCell>
+            <TableCell className="flex items-center gap-2">
+              <Button
+                size="sm"
+                variant="flat"
+                color="success"
+                startContent={<LoginAnimatedIcon className="size-3.5" />}
+              >
+                Open
+              </Button>
+              {ticket?.assignee && (
+                <Button
+                  size="sm"
+                  variant="flat"
+                  color="primary"
+                  startContent={<UserAnimated className="size-3.5" />}
+                >
+                  Assign
+                </Button>
+              )}
+            </TableCell>
+          </TableRow>
+        ))}
       </CustomTable>
 
       {/* edit department modal */}

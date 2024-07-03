@@ -1,4 +1,4 @@
-export const API_BASE_URL = "https://get-sorted-backend.vercel.app";
+export const API_BASE_URL = "https://get-sorted.printmoney.money";
 export const GEMINI_API_KEY = "AIzaSyC_0TEHGdldMHXgaDyoCXmiZoJXDcEGv9g";
 
 /**

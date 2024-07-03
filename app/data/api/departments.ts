@@ -12,6 +12,9 @@ export const fetcher = (token: string) => async (url: string) => {
     });
     console.log(response.data);
 
+    if (response?.data?.status === "error")
+      errorToast("Error!", response?.data?.message);
+
     return response.data;
   } catch (error: any) {
     console.log(error);

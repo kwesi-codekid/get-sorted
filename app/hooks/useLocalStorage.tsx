@@ -4,7 +4,7 @@
 import { useState } from "react";
 
 export const useLocalStorage = <T extends unknown>(
-  key: string,
+  key: "auth-token",
   initialValue: T
 ) => {
   const [storedValue, setStoredValue] = useState<T>(() => {

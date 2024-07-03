@@ -4,13 +4,58 @@ export const EyeFilled = (props: React.SVGProps<SVGSVGElement>) => {
       xmlns="http://www.w3.org/2000/svg"
       width="1em"
       height="1em"
-      viewBox="0 0 1024 1024"
+      viewBox="0 0 24 24"
       {...props}
     >
-      <path
+      <defs>
+        <clipPath id="lineMdWatchTwotone0">
+          <rect width={24} height={12}></rect>
+        </clipPath>
+        <symbol id="lineMdWatchTwotone1">
+          <path
+            fill="#fff"
+            fillOpacity={0}
+            stroke="#fff"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M23 16.5C23 10.4249 18.0751 5.5 12 5.5C5.92487 5.5 1 10.4249 1 16.5z"
+            clipPath="url(#lineMdWatchTwotone0)"
+          >
+            <animate
+              fill="freeze"
+              attributeName="d"
+              dur="0.5s"
+              values="M23 16.5C23 11.5 18.0751 12 12 12C5.92487 12 1 11.5 1 16.5z;M23 16.5C23 10.4249 18.0751 5.5 12 5.5C5.92487 5.5 1 10.4249 1 16.5z"
+            ></animate>
+            <animate
+              fill="freeze"
+              attributeName="fill-opacity"
+              begin="0.6s"
+              dur="0.15s"
+              values="0;0.3"
+            ></animate>
+          </path>
+        </symbol>
+        <mask id="lineMdWatchTwotone2">
+          <use href="#lineMdWatchTwotone1"></use>
+          <use href="#lineMdWatchTwotone1" transform="rotate(180 12 12)"></use>
+          <circle cx={12} cy={12} r={0} fill="#fff">
+            <animate
+              fill="freeze"
+              attributeName="r"
+              dur="0.2s"
+              values="0;3"
+            ></animate>
+          </circle>
+        </mask>
+      </defs>
+      <rect
+        width={24}
+        height={24}
         fill="currentColor"
-        d="M396 512a112 112 0 1 0 224 0a112 112 0 1 0-224 0m546.2-25.8C847.4 286.5 704.1 186 512 186c-192.2 0-335.4 100.5-430.2 300.3a60.3 60.3 0 0 0 0 51.5C176.6 737.5 319.9 838 512 838c192.2 0 335.4-100.5 430.2-300.3c7.7-16.2 7.7-35 0-51.5M508 688c-97.2 0-176-78.8-176-176s78.8-176 176-176s176 78.8 176 176s-78.8 176-176 176"
-      />
+        mask="url(#lineMdWatchTwotone2)"
+      ></rect>
     </svg>
   );
 };
@@ -21,17 +66,80 @@ export const EyeSlashFilled = (props: React.SVGProps<SVGSVGElement>) => {
       xmlns="http://www.w3.org/2000/svg"
       width="1em"
       height="1em"
-      viewBox="0 0 1024 1024"
+      viewBox="0 0 24 24"
       {...props}
     >
-      <path
+      <defs>
+        <clipPath id="lineMdWatchOffTwotone0">
+          <rect width={24} height={12}></rect>
+        </clipPath>
+        <symbol id="lineMdWatchOffTwotone1">
+          <path
+            fill="#fff"
+            fillOpacity={0}
+            stroke="#fff"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M23 16.5C23 10.4249 18.0751 5.5 12 5.5C5.92487 5.5 1 10.4249 1 16.5z"
+            clipPath="url(#lineMdWatchOffTwotone0)"
+          >
+            <animate
+              fill="freeze"
+              attributeName="d"
+              dur="0.5s"
+              values="M23 16.5C23 11.5 18.0751 12 12 12C5.92487 12 1 11.5 1 16.5z;M23 16.5C23 10.4249 18.0751 5.5 12 5.5C5.92487 5.5 1 10.4249 1 16.5z"
+            ></animate>
+            <animate
+              fill="freeze"
+              attributeName="fill-opacity"
+              begin="0.6s"
+              dur="0.15s"
+              values="0;0.3"
+            ></animate>
+          </path>
+        </symbol>
+        <mask id="lineMdWatchOffTwotone2">
+          <use href="#lineMdWatchOffTwotone1"></use>
+          <use
+            href="#lineMdWatchOffTwotone1"
+            transform="rotate(180 12 12)"
+          ></use>
+          <circle cx={12} cy={12} r={0} fill="#fff">
+            <animate
+              fill="freeze"
+              attributeName="r"
+              dur="0.2s"
+              values="0;3"
+            ></animate>
+          </circle>
+          <g
+            fill="none"
+            strokeDasharray={26}
+            strokeDashoffset={26}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            transform="rotate(45 13 12)"
+          >
+            <path stroke="#000" d="M0 11h24"></path>
+            <path stroke="#fff" d="M1 13h22"></path>
+            <animate
+              fill="freeze"
+              attributeName="stroke-dashoffset"
+              begin="0.8s"
+              dur="0.2s"
+              values="26;0"
+            ></animate>
+          </g>
+        </mask>
+      </defs>
+      <rect
+        width={24}
+        height={24}
         fill="currentColor"
-        d="M508 624a112 112 0 0 0 112-112c0-3.28-.15-6.53-.43-9.74L498.26 623.57c3.21.28 6.45.43 9.74.43m370.72-458.44L836 122.88a8 8 0 0 0-11.31 0L715.37 232.23Q624.91 186 512 186q-288.3 0-430.2 300.3a60.3 60.3 0 0 0 0 51.5q56.7 119.43 136.55 191.45L112.56 835a8 8 0 0 0 0 11.31L155.25 889a8 8 0 0 0 11.31 0l712.16-712.12a8 8 0 0 0 0-11.32M332 512a176 176 0 0 1 258.88-155.28l-48.62 48.62a112.08 112.08 0 0 0-140.92 140.92l-48.62 48.62A175.1 175.1 0 0 1 332 512"
-      />
-      <path
-        fill="currentColor"
-        d="M942.2 486.2Q889.4 375 816.51 304.85L672.37 449A176.08 176.08 0 0 1 445 676.37L322.74 798.63Q407.82 838 512 838q288.3 0 430.2-300.3a60.29 60.29 0 0 0 0-51.5"
-      />
+        mask="url(#lineMdWatchOffTwotone2)"
+      ></rect>
     </svg>
   );
 };

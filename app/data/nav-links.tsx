@@ -1,5 +1,5 @@
 import { BuildingIcon } from "~/components/icons/building";
-import { ChatsOutlinedIcon } from "~/components/icons/chat";
+import { ChatsOutlinedIcon, RobotOutlinedIcon } from "~/components/icons/chat";
 import { ClipboardIcon } from "~/components/icons/clipboard";
 import { DashboardIcon } from "~/components/icons/dashboard";
 import { UserBadgeIcon, UserSpeakingIcon } from "~/components/icons/user";
@@ -15,4 +15,16 @@ export const adminNavLinks = [
     path: "/admin/contributions",
     icon: <UserSpeakingIcon />,
   },
+];
+
+export const staffNavLinks = [
+  { label: "Dashboard", path: "/staff", icon: <DashboardIcon /> },
+  { label: "Tickets", path: "/staff/tickets", icon: <ClipboardIcon /> },
+  { label: "FAQs", path: "/staff/faqs", icon: <ChatsOutlinedIcon /> },
+  {
+    label: "Ask AI",
+    path: "/staff/ask-ai",
+    icon: <RobotOutlinedIcon />,
+  },
+  { label: "My Profile", path: "/staff/profile", icon: <UserBadgeIcon /> },
 ];
