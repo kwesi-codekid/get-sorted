@@ -126,7 +126,7 @@ export default function AdminDepartmentManagement() {
 export const loader: LoaderFunction = async ({ request }) => {
   const url = new URL(request.url);
   const page = parseInt(url.searchParams.get("page") as string) || 1;
-  const search_term = url.searchParams.get("search_term") as string;
+  const search_term = (url.searchParams.get("search_term") as string) || "";
 
   return {
     page,

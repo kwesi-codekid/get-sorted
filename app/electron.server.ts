@@ -1,5 +1,4 @@
 import electron from "electron";
-
 import { createCookieSessionStorage } from "@remix-run/node"; // or cloudflare/deno
 
 type SessionData = {
@@ -24,5 +23,4 @@ export const { getSession, commitSession, destroySession } =
       // secure: true,
     },
   });
-
 export default electron;
