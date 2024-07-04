@@ -35,7 +35,8 @@
     "react-hot-toast": "^2.4.1",
     "react-quill": "^2.0.0",
     "remix-electron": "^2.0.1",
-    "swr": "^2.2.5"
+    "swr": "^2.2.5",
+    "systeminformation": "^5.22.11"
   },
   "devDependencies": {
     "@remix-run/dev": "^2.5.1",
