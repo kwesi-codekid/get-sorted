@@ -1,14 +1,23 @@
+import { useLocalStorage } from "~/hooks/useLocalStorage";
+import { UserInterface } from "~/utils/types";
+
 export const ChatBubble = ({
   author,
   time,
   content,
 }: {
-  author?: string;
+  author?: UserInterface;
   time?: string;
   content: string;
 }) => {
+  const [storedValue] = useLocalStorage<any>("auth-token", "");
+
   return (
-    <div className="w-full">
+    <div
+      className={`w-full flex ${
+        author?._id === storedValue?.user?._id ? "justify-end" : "justify-start"
+      }"`}
+    >
       <div className="flex gap-2.5">
         <img
           src="https://pagedone.io/asset/uploads/1710412177.png"
@@ -17,7 +26,7 @@ export const ChatBubble = ({
         />
         <div className="grid">
           <h5 className="text-slate-800 dark:text-white text-sm font-semibold leading-snug pb-1">
-            {author}
+            {author?.firstName + " " + author?.lastName}
           </h5>
           <div className="w-max max-w-2xl grid">
             <div

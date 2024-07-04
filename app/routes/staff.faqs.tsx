@@ -1,6 +1,5 @@
 import {
   Button,
-  Chip,
   SelectItem,
   TableCell,
   TableRow,
@@ -27,20 +26,20 @@ import { useLocalStorage } from "~/hooks/useLocalStorage";
 import { API_BASE_URL } from "~/data/dotenv";
 import { fetcher } from "~/data/api/departments";
 import useSWR, { mutate } from "swr";
-import { DepartmentInterface, TicketInterface } from "~/utils/types";
+import { DepartmentInterface, FAQInterface } from "~/utils/types";
 import TextareaInput from "~/components/inputs/textarea";
 import SearchInput from "~/components/inputs/search";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { errorToast, successToast } from "~/utils/toasters";
-import moment from "moment";
-import { UserAnimated } from "~/components/icons/user";
-import { LoginAnimatedIcon } from "~/components/icons/open";
-import CustomSelect from "~/components/inputs/select";
 import { PlusIcon } from "~/components/icons/plus";
-import { SupportUsersCombobox } from "~/components/inputs/combobox";
+import moment from "moment";
+import CustomSelect from "~/components/inputs/select";
 
-export default function AdminTicketManagement() {
+const ReactQuill =
+  typeof window === "object" ? require("react-quill") : () => false;
+
+export default function AdminFAQsManagement() {
   const navigate = useNavigate();
   const navigation = useNavigation();
   const { page, search_term } = useLoaderData<typeof loader>();
@@ -64,9 +63,8 @@ export default function AdminTicketManagement() {
         createDisclosure.onClose();
         editDisclosure.onClose();
         deleteDisclosure.onClose();
-        assignDisclosure.onClose();
         mutate(
-          `${API_BASE_URL}/api/tickets/my-tickets?page=${page}&search_term=${search_term}`
+          `${API_BASE_URL}/api/faqs?page=${page}&search_term=${search_term}`
         );
       }
     }
@@ -74,7 +72,7 @@ export default function AdminTicketManagement() {
 
   // table data
   const { data, isLoading } = useSWR(
-    `${API_BASE_URL}/api/tickets/my-tickets?page=${page}&search_term=${search_term}`,
+    `${API_BASE_URL}/api/faqs?page=${page}&search_term=${search_term}`,
     fetcher(storedValue.token),
     {
       keepPreviousData: true,
@@ -84,264 +82,215 @@ export default function AdminTicketManagement() {
 
   //   create department stuff
   const createDisclosure = useDisclosure();
+  const [content, setContent] = useState("");
 
   // edit department stuff
   const editDisclosure = useDisclosure();
-  const [selectedDepartment, setSelectedDepartment] =
-    useState<DepartmentInterface>();
+  const [selectedFAQ, setSelectedFAQ] = useState<FAQInterface>();
 
   // delete department stuff
   const deleteDisclosure = useDisclosure();
   const [deleteId, setDeleteId] = useState("");
-
-  // assign ticket stuff
-  const assignDisclosure = useDisclosure();
-  const [assigneeKey, setAssigneeKey] = useState("");
-  const [ticketId, setTicketId] = useState("");
 
   return (
     <main className="h-full flex flex-col gap-2">
       {/* table top */}
       <div className="flex items-center justify-between">
         <SearchInput />
-        <Button
-          color="primary"
-          className="font-montserrat font-semibold w-max"
-          onPress={() => createDisclosure.onOpen()}
-          startContent={<PlusIcon />}
-        >
-          Raise Ticket
-        </Button>
       </div>
 
       {/* departments table */}
       <CustomTable
-        columns={[
-          "Timestamp",
-          "Title",
-          "Reporter",
-          "Priority",
-          "Status",
-          "Assignee",
-          "Actions",
-        ]}
+        columns={["Timestamp", "Question", "Category", "Actions"]}
         page={page}
         setPage={(page) => navigate(`?page=${page}`)}
         totalPages={data?.totalPages || 1}
         loadingState={loadingState}
       >
-        {data?.data?.tickets?.map((ticket: TicketInterface, index: number) => (
+        {data?.faqs?.map((faq: FAQInterface, index: number) => (
           <TableRow key={index}>
-            <TableCell className="text-xs">
-              {moment(ticket?.createdAt).format("DD-MM-YYYY hh:mm")}
-            </TableCell>
-            <TableCell className="text-xs">{ticket?.title}</TableCell>
-            <TableCell className="text-xs">
-              {ticket?.reporter?.firstName} {ticket?.reporter?.lastName}
-            </TableCell>
-
-            <TableCell className="text-xs">
-              <Chip
-                size="sm"
-                variant="dot"
-                color={
-                  ticket?.priority === "low"
-                    ? "success"
-                    : ticket?.priority === "medium"
-                    ? "primary"
-                    : ticket?.priority === "high"
-                    ? "warning"
-                    : "danger"
-                }
-                classNames={{
-                  base:
-                    ticket?.priority === "low"
-                      ? "border-[#17c964]"
-                      : ticket?.priority === "medium"
-                      ? "border-[#006fee]"
-                      : ticket?.priority === "high"
-                      ? "border-[#f5a524]"
-                      : "border-[#f31260]",
-                }}
-              >
-                {ticket?.priority}
-              </Chip>
-            </TableCell>
-            <TableCell className="text-xs">
-              <Chip
-                color={
-                  ticket?.status === "open"
-                    ? "danger"
-                    : ticket?.status === "in-progress"
-                    ? "warning"
-                    : ticket?.status === "resolved"
-                    ? "success"
-                    : "primary"
-                }
-                size="sm"
-                variant="flat"
-              >
-                {ticket?.status}
-              </Chip>
-            </TableCell>
-            <TableCell className="text-xs">
-              {ticket?.assignee
-                ? ticket?.assignee?.firstName + " " + ticket?.assignee?.lastName
-                : "Unassigned"}
-            </TableCell>
+            <TableCell>{moment(faq?.createdAt).format("DD-MM-YYYY")}</TableCell>
+            <TableCell>{faq?.question}</TableCell>
+            <TableCell>{faq?.category}</TableCell>
             <TableCell className="flex items-center gap-2">
-              <Button
-                size="sm"
-                variant="flat"
-                color="success"
-                startContent={<LoginAnimatedIcon className="size-3.5" />}
-                onPress={() => {
-                  navigate(`/staff/tickets/${ticket._id}`);
+              <EditButton
+                action={() => {
+                  setSelectedFAQ(faq);
+                  setContent(faq?.answer);
+                  editDisclosure.onOpen();
                 }}
-              >
-                Open
-              </Button>
+              />
+              <DeleteButton
+                action={() => {
+                  setDeleteId(faq?._id as string);
+                  deleteDisclosure.onOpen();
+                }}
+              />
             </TableCell>
           </TableRow>
         ))}
       </CustomTable>
 
-      {/* edit department modal */}
+      {/* edit faq modal */}
       <EditRecordModal
         onCloseModal={editDisclosure.onClose}
         onOpenChange={editDisclosure.onOpenChange}
         isOpen={editDisclosure.isOpen}
-        intent="edit-department"
-        title="Update Department Info"
+        intent="edit-faq"
+        title="Update Frequently Asked Question"
         actionText="Save Changes"
-        size="xl"
+        size="4xl"
         token={storedValue.token}
       >
-        <div className="grid grid-cols-1 gap-6">
-          <TextInput
-            defaultValue={selectedDepartment?._id}
-            name="_id"
-            label="Department ID"
-            isRequired
-            className="hidden"
-          />
-          <TextInput
-            defaultValue={selectedDepartment?.name}
-            name="name"
-            label="Department Name"
-            isRequired
-            actionData={actionData}
-          />
-          <TextareaInput
-            defaultValue={selectedDepartment?.description}
-            name="description"
-            label="Description"
-            isRequired
-            actionData={actionData}
-          />
-          <TextInput
-            defaultValue={selectedDepartment?.phone}
-            name="phone"
-            label="Phone"
-            isRequired
-            actionData={actionData}
-          />
+        <div className="grid grid-cols-2 gap-6">
+          <div className="flex flex-col gap-6">
+            <TextInput
+              name="id"
+              defaultValue={selectedFAQ?._id}
+              className="hidden"
+            />
+            <TextareaInput
+              name="question"
+              label="Question"
+              isRequired
+              actionData={actionData}
+              defaultValue={selectedFAQ?.question}
+            />
+            <CustomSelect
+              name="category"
+              label="Category"
+              isRequired
+              actionData={actionData}
+              defaultSelectedKeys={[selectedFAQ?.category]}
+            >
+              {[
+                {
+                  key: "software",
+                  value: "software",
+                  display_name: "Software",
+                },
+                {
+                  key: "hardware",
+                  value: "hardware",
+                  display_name: "Hardware",
+                },
+                {
+                  key: "networking",
+                  value: "networking",
+                  display_name: "Networking",
+                },
+                {
+                  key: "portal",
+                  value: "portal",
+                  display_name: "School Portal",
+                },
+              ].map((role) => (
+                <SelectItem key={role.key}>{role.display_name}</SelectItem>
+              ))}
+            </CustomSelect>
+          </div>
+          <>
+            <div className="flex flex-col gap-2">
+              <h4 className="text-sm md:text-base font-medium font-sen text-slate-800 dark:text-slate-100">
+                Answer Content
+              </h4>
+              <TextInput name="answer" value={content} className="hidden" />
+              <ReactQuill
+                required
+                value={content}
+                onChange={setContent}
+                className="h-[55vh] !font-nunito"
+              />
+            </div>
+          </>
         </div>
       </EditRecordModal>
 
-      {/* create department modal */}
+      {/* create faq modal */}
       <CreateRecordModal
         onCloseModal={createDisclosure.onClose}
         onOpenChange={createDisclosure.onOpenChange}
         isOpen={createDisclosure.isOpen}
-        intent="raise-ticket"
-        title="Raise New  Ticket"
+        intent="create-faq"
+        title="New Frequently Asked Question"
         actionText="Submit"
-        size="md"
+        size="4xl"
         token={storedValue.token}
       >
-        <div className="grid grid-cols-1 gap-6">
-          <TextInput
-            actionData={actionData}
-            className="hidden"
-            name="reporter"
-            label="Reporter"
-            isRequired
-            value={storedValue?.user?._id}
-          />
-          <TextInput
-            actionData={actionData}
-            name="title"
-            label="Title"
-            isRequired
-          />
-          <TextareaInput
-            actionData={actionData}
-            name="description"
-            label="Description"
-          />
-          <CustomSelect
-            name="priority"
-            label="Priority"
-            isRequired
-            actionData={actionData}
-          >
-            {[
-              {
-                key: "low",
-                value: "low",
-                display_name: "Low",
-              },
-              {
-                key: "medium",
-                value: "medium",
-                display_name: "Medium",
-              },
-              {
-                key: "high",
-                value: "high",
-                display_name: "High",
-              },
-              {
-                key: "urgent",
-                value: "urgent",
-                display_name: "Urgent",
-              },
-            ].map((role) => (
-              <SelectItem key={role.key}>{role.display_name}</SelectItem>
-            ))}
-          </CustomSelect>
+        <div className="grid grid-cols-2 gap-6">
+          <div className="flex flex-col gap-6">
+            <TextareaInput
+              name="question"
+              label="Question"
+              isRequired
+              actionData={actionData}
+            />
+            <CustomSelect
+              name="category"
+              label="Category"
+              isRequired
+              actionData={actionData}
+            >
+              {[
+                {
+                  key: "software",
+                  value: "software",
+                  display_name: "Software",
+                },
+                {
+                  key: "hardware",
+                  value: "hardware",
+                  display_name: "Hardware",
+                },
+                {
+                  key: "networking",
+                  value: "networking",
+                  display_name: "Networking",
+                },
+                {
+                  key: "portal",
+                  value: "portal",
+                  display_name: "School Portal",
+                },
+              ].map((role) => (
+                <SelectItem key={role.key}>{role.display_name}</SelectItem>
+              ))}
+            </CustomSelect>
+          </div>
+          <>
+            <div className="flex flex-col gap-2">
+              <h4 className="text-sm md:text-base font-medium font-sen text-slate-800 dark:text-slate-100">
+                Answer Content
+              </h4>
+              <TextInput name="answer" value={content} className="hidden" />
+              <ReactQuill
+                required
+                value={content}
+                onChange={setContent}
+                className="h-[55vh] !font-nunito"
+              />
+            </div>
+          </>
         </div>
       </CreateRecordModal>
 
-      {/* assign ticket modal */}
+      {/* delete department modal */}
       <EditRecordModal
-        onCloseModal={assignDisclosure.onClose}
-        onOpenChange={assignDisclosure.onOpenChange}
-        isOpen={assignDisclosure.isOpen}
-        intent="assign-ticket"
-        title="Assign Ticket"
-        actionText="Assign"
-        size="md"
+        onCloseModal={deleteDisclosure.onClose}
+        onOpenChange={deleteDisclosure.onOpenChange}
+        isOpen={deleteDisclosure.isOpen}
+        intent="delete-faq"
+        title="Delete Frequently Asked Question"
+        actionText="Delete"
+        size="xl"
         token={storedValue.token}
       >
+        <p className="font-nunito">Are you sure to delete this FAQ?</p>
         <TextInput
-          defaultValue={ticketId}
-          className="hidden"
+          defaultValue={deleteId}
           name="id"
-          label="Ticket ID"
-        />
-        <TextInput
-          name="assignee"
           className="hidden"
-          label="Assignee"
-          value={assigneeKey}
-        />
-        <SupportUsersCombobox
-          label="Assignee Combobox"
-          value={assigneeKey}
-          setValue={setAssigneeKey}
-          token={storedValue?.token}
+          label="Delete ID"
         />
       </EditRecordModal>
     </main>
@@ -352,16 +301,14 @@ export const action: ActionFunction = async ({ request }) => {
   const formData = await request.formData();
   const formValues = Object.fromEntries(formData.entries());
 
-  if (formValues.intent === "raise-ticket") {
+  if (formValues.intent === "create-faq") {
     try {
       const response = await axios.post(
-        `${API_BASE_URL}/api/tickets/create`,
+        `${API_BASE_URL}/api/faqs/create`,
         {
-          title: formValues.title,
-          description: formValues.description,
-          priority: formValues.priority,
-          reporter: formValues.reporter,
-          files: "[]",
+          question: formValues.question,
+          category: formValues.category,
+          answer: formValues.answer,
         },
         {
           headers: {
@@ -380,13 +327,15 @@ export const action: ActionFunction = async ({ request }) => {
     }
   }
 
-  if (formValues.intent === "assign-ticket") {
+  if (formValues.intent === "edit-faq") {
     try {
       const response = await axios.put(
-        `${API_BASE_URL}/api/tickets/assign`,
+        `${API_BASE_URL}/api/faqs/update`,
         {
           id: formValues.id,
-          assignee: formValues.assignee,
+          question: formValues.question,
+          category: formValues.category,
+          answer: formValues.answer,
         },
         {
           headers: {
@@ -405,10 +354,10 @@ export const action: ActionFunction = async ({ request }) => {
     }
   }
 
-  if (formValues.intent === "delete-department") {
+  if (formValues.intent === "delete-faq") {
     try {
       const response = await axios.delete(
-        `${API_BASE_URL}/api/departments/delete/${formValues.id}`,
+        `${API_BASE_URL}/api/faqs/delete/${formValues.id}`,
         {
           headers: {
             Authorization: `Bearer ${formValues.token}`,

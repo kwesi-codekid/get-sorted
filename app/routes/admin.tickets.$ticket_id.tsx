@@ -194,9 +194,7 @@ export default function AdminTicketInfo() {
               <ChatBubble
                 content={comment?.content}
                 time={moment(comment?.createdAt).format("DD-MM-YYYY hh:mm")}
-                author={
-                  comment?.author?.firstName + " " + comment?.author?.lastName
-                }
+                author={comment?.author}
               />
             ))
           ) : (
