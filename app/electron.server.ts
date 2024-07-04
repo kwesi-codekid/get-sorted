@@ -1,5 +1,6 @@
 import electron from "electron";
 import { createCookieSessionStorage } from "@remix-run/node"; // or cloudflare/deno
+import si from "systeminformation";
 
 type SessionData = {
   token: string;
@@ -23,4 +24,22 @@ export const { getSession, commitSession, destroySession } =
       // secure: true,
     },
   });
+
+export const getMacAddress = async () => {
+  try {
+    const networkInterfaces = await si.networkInterfaces();
+    for (const iface of networkInterfaces) {
+      if (
+        iface.type == "wired" &&
+        iface.mac != "00:00:00:00:00:00" &&
+        iface.mac != "ff:ff:ff:ff:ff:ff"
+      ) {
+        return iface.mac;
+      }
+    }
+  } catch (error) {
+    console.error("Error getting MAC address:", error);
+  }
+};
+
 export default electron;

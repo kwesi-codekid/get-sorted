@@ -26,5 +26,10 @@ export const staffNavLinks = [
     path: "/staff/ask-ai",
     icon: <RobotOutlinedIcon />,
   },
+  {
+    label: "Softwares",
+    path: "/staff/software",
+    icon: <RobotOutlinedIcon />,
+  },
   { label: "My Profile", path: "/staff/profile", icon: <UserBadgeIcon /> },
 ];

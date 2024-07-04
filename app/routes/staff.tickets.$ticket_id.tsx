@@ -169,17 +169,6 @@ export default function AdminTicketInfo() {
             </Chip>
           </div>
         </div>
-
-        {/* change status button */}
-        <Button
-          variant="flat"
-          color="success"
-          startContent={<ClipboardIcon className="size-6" />}
-          onClick={() => changeStatusDisclosure.onOpen()}
-          className="w-max font-nunito"
-        >
-          Change Ticket Status
-        </Button>
       </div>
 
       {/* ticket comments */}
