@@ -1,6 +1,7 @@
 import {
   Button,
   Chip,
+  SelectItem,
   TableCell,
   TableRow,
   useDisclosure,
@@ -35,6 +36,9 @@ import { errorToast, successToast } from "~/utils/toasters";
 import moment from "moment";
 import { UserAnimated } from "~/components/icons/user";
 import { LoginAnimatedIcon } from "~/components/icons/open";
+import CustomSelect from "~/components/inputs/select";
+import { PlusIcon } from "~/components/icons/plus";
+import { SupportUsersCombobox } from "~/components/inputs/combobox";
 
 export default function AdminTicketManagement() {
   const navigate = useNavigate();
@@ -60,6 +64,7 @@ export default function AdminTicketManagement() {
         createDisclosure.onClose();
         editDisclosure.onClose();
         deleteDisclosure.onClose();
+        assignDisclosure.onClose();
         mutate(
           `${API_BASE_URL}/api/tickets?page=${page}&search_term=${search_term}`
         );
@@ -89,6 +94,11 @@ export default function AdminTicketManagement() {
   const deleteDisclosure = useDisclosure();
   const [deleteId, setDeleteId] = useState("");
 
+  // assign ticket stuff
+  const assignDisclosure = useDisclosure();
+  const [assigneeKey, setAssigneeKey] = useState("");
+  const [ticketId, setTicketId] = useState("");
+
   return (
     <main className="h-full flex flex-col gap-2">
       {/* table top */}
@@ -98,6 +108,7 @@ export default function AdminTicketManagement() {
           color="primary"
           className="font-montserrat font-semibold w-max"
           onPress={() => createDisclosure.onOpen()}
+          startContent={<PlusIcon />}
         >
           Raise Ticket
         </Button>
@@ -174,7 +185,9 @@ export default function AdminTicketManagement() {
               </Chip>
             </TableCell>
             <TableCell className="text-xs">
-              {ticket?.assignee?.firstName} {ticket?.assignee?.lastName}
+              {ticket?.assignee
+                ? ticket?.assignee?.firstName + " " + ticket?.assignee?.lastName
+                : "Unassigned"}
             </TableCell>
             <TableCell className="flex items-center gap-2">
               <Button
@@ -182,19 +195,27 @@ export default function AdminTicketManagement() {
                 variant="flat"
                 color="success"
                 startContent={<LoginAnimatedIcon className="size-3.5" />}
+                onPress={() => {
+                  navigate(`/admin/tickets/${ticket._id}`);
+                }}
               >
                 Open
               </Button>
-              {ticket?.assignee && (
-                <Button
-                  size="sm"
-                  variant="flat"
-                  color="primary"
-                  startContent={<UserAnimated className="size-3.5" />}
-                >
-                  Assign
-                </Button>
-              )}
+              <Button
+                size="sm"
+                variant="flat"
+                color="primary"
+                startContent={<UserAnimated className="size-3.5" />}
+                onPress={() => {
+                  setTicketId(ticket?._id);
+                  if (ticket?.assignee) {
+                    setAssigneeKey(ticket?.assignee?._id as string);
+                  }
+                  assignDisclosure.onOpen();
+                }}
+              >
+                {!ticket?.assignee ? "Assign" : "Reassign"}
+              </Button>
             </TableCell>
           </TableRow>
         ))}
@@ -248,8 +269,8 @@ export default function AdminTicketManagement() {
         onCloseModal={createDisclosure.onClose}
         onOpenChange={createDisclosure.onOpenChange}
         isOpen={createDisclosure.isOpen}
-        intent="create-department"
-        title="Create New Department"
+        intent="raise-ticket"
+        title="Raise New  Ticket"
         actionText="Submit"
         size="md"
         token={storedValue.token}
@@ -257,42 +278,85 @@ export default function AdminTicketManagement() {
         <div className="grid grid-cols-1 gap-6">
           <TextInput
             actionData={actionData}
-            name="name"
-            label="Department Name"
+            className="hidden"
+            name="reporter"
+            label="Reporter"
+            isRequired
+            value={storedValue?.user?._id}
+          />
+          <TextInput
+            actionData={actionData}
+            name="title"
+            label="Title"
             isRequired
           />
           <TextareaInput
             actionData={actionData}
             name="description"
             label="Description"
-            isRequired
           />
-          <TextInput
+          <CustomSelect
+            name="priority"
+            label="Priority"
+            isRequired
             actionData={actionData}
-            name="phone"
-            label="Phone"
-            isRequired
-          />
+          >
+            {[
+              {
+                key: "low",
+                value: "low",
+                display_name: "Low",
+              },
+              {
+                key: "medium",
+                value: "medium",
+                display_name: "Medium",
+              },
+              {
+                key: "high",
+                value: "high",
+                display_name: "High",
+              },
+              {
+                key: "urgent",
+                value: "urgent",
+                display_name: "Urgent",
+              },
+            ].map((role) => (
+              <SelectItem key={role.key}>{role.display_name}</SelectItem>
+            ))}
+          </CustomSelect>
         </div>
       </CreateRecordModal>
 
-      {/* delete department modal */}
+      {/* assign ticket modal */}
       <EditRecordModal
-        onCloseModal={deleteDisclosure.onClose}
-        onOpenChange={deleteDisclosure.onOpenChange}
-        isOpen={deleteDisclosure.isOpen}
-        intent="delete-department"
-        title="Delete Department"
-        actionText="Delete"
-        size="xl"
+        onCloseModal={assignDisclosure.onClose}
+        onOpenChange={assignDisclosure.onOpenChange}
+        isOpen={assignDisclosure.isOpen}
+        intent="assign-ticket"
+        title="Assign Ticket"
+        actionText="Assign"
+        size="md"
         token={storedValue.token}
       >
-        <p className="font-nunito">Are you sure to delete this user account?</p>
         <TextInput
-          defaultValue={deleteId}
-          name="id"
+          defaultValue={ticketId}
           className="hidden"
-          label="Delete ID"
+          name="id"
+          label="Ticket ID"
+        />
+        <TextInput
+          name="assignee"
+          className="hidden"
+          label="Assignee"
+          value={assigneeKey}
+        />
+        <SupportUsersCombobox
+          label="Assignee Combobox"
+          value={assigneeKey}
+          setValue={setAssigneeKey}
+          token={storedValue?.token}
         />
       </EditRecordModal>
     </main>
@@ -303,14 +367,16 @@ export const action: ActionFunction = async ({ request }) => {
   const formData = await request.formData();
   const formValues = Object.fromEntries(formData.entries());
 
-  if (formValues.intent === "create-department") {
+  if (formValues.intent === "raise-ticket") {
     try {
       const response = await axios.post(
-        `${API_BASE_URL}/api/departments/create`,
+        `${API_BASE_URL}/api/tickets/create`,
         {
-          name: formValues.name,
+          title: formValues.title,
           description: formValues.description,
-          phone: formValues.phone,
+          priority: formValues.priority,
+          reporter: formValues.reporter,
+          files: "[]",
         },
         {
           headers: {
@@ -329,15 +395,13 @@ export const action: ActionFunction = async ({ request }) => {
     }
   }
 
-  if (formValues.intent === "edit-department") {
+  if (formValues.intent === "assign-ticket") {
     try {
       const response = await axios.put(
-        `${API_BASE_URL}/api/departments/update`,
+        `${API_BASE_URL}/api/tickets/assign`,
         {
-          id: formValues._id,
-          name: formValues.name,
-          description: formValues.description,
-          phone: formValues.phone,
+          id: formValues.id,
+          assignee: formValues.assignee,
         },
         {
           headers: {

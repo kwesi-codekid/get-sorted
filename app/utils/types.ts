@@ -31,7 +31,7 @@ export type DepartmentInterface = {
 };
 
 export interface TicketInterface {
-  id: string; // Unique identifier for the ticket
+  _id: string; // Unique identifier for the ticket
   title: string; // Brief title of the issue or request
   description: string; // Detailed description of the issue or request
   status: "open" | "in-progress" | "resolved" | "closed"; // Current status of the ticket
@@ -46,7 +46,7 @@ export interface TicketInterface {
 export interface CommentInterface {
   id: string; // Unique identifier for the comment
   ticketId: string; // ID of the ticket this comment belongs to
-  author: string; // ID or name of the person who wrote the comment
+  author: UserInterface; // ID or name of the person who wrote the comment
   content: string; // The content of the comment
   createdAt: Date; // Timestamp when the comment was created
 }
