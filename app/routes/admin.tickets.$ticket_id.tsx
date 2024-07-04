@@ -29,16 +29,22 @@ import axios from "axios";
 import { Card } from "~/components/sections/cards";
 import { LoginAnimatedIcon } from "~/components/icons/open";
 import { ThreeDotsBounceIcon } from "~/components/icons/chat";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { formatResponse } from "~/utils/string-manipulation";
 import { errorToast, successToast } from "~/utils/toasters";
-import { TicketInterface } from "~/utils/types";
+import { CommentInterface, TicketInterface } from "~/utils/types";
 import { useLocalStorage } from "~/hooks/useLocalStorage";
 import moment from "moment";
 import { ClipboardIcon } from "~/components/icons/clipboard";
 import EditRecordModal from "~/components/modals/edit";
 import TextInput from "~/components/inputs/text";
 import CustomSelect from "~/components/inputs/select";
+import { ChatBubble } from "~/components/sections/chat-bubble";
+import useSWR, { mutate } from "swr";
+import { fetcher } from "~/data/api/departments";
+
+const ReactQuill =
+  typeof window === "object" ? require("react-quill") : () => false;
 
 export default function AdminTicketInfo() {
   const navigate = useNavigate();
@@ -61,43 +67,27 @@ export default function AdminTicketInfo() {
       if (actionData.status === "success") {
         successToast("Success", actionData.message);
         changeStatusDisclosure.onClose();
-        fetchTicketDetails(ticket_id, storedValue.token);
+        mutate(`${API_BASE_URL}/api/tickets/${ticket_id}`);
       }
     }
   }, [actionData]);
 
-  const [isLoading, setIsLoading] = useState(false);
-  const [ticketInfo, setTicketInfo] = useState<{
-    comments: any[];
-    ticket: TicketInterface;
-  }>();
-  const fetchTicketDetails = async (ticket_id: string, token: string) => {
-    try {
-      setIsLoading(true);
-
-      const response = await axios.get(
-        `${API_BASE_URL}/api/tickets/${ticket_id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      setTicketInfo(response.data?.data);
-    } catch (error: any) {
-      errorToast(
-        error?.message,
-        "An error occurred while fetching ticket details..."
-      );
-    } finally {
-      setIsLoading(false);
+  const { data, isLoading } = useSWR(
+    `${API_BASE_URL}/api/tickets/${ticket_id}`,
+    fetcher(storedValue.token),
+    {
+      keepPreviousData: true,
     }
-  };
+  );
+
+  const [content, setContent] = useState("");
+  const commentsRef = useRef<any>(null);
 
   useEffect(() => {
-    fetchTicketDetails(ticket_id, storedValue.token);
-  }, []);
+    if (commentsRef.current) {
+      commentsRef.current.scrollTop = commentsRef.current.scrollHeight;
+    }
+  }, [data?.data?.comments]);
 
   // change ticket status stuff
   const changeStatusDisclosure = useDisclosure();
@@ -117,45 +107,45 @@ export default function AdminTicketInfo() {
         </Button>
         <Skeleton isLoaded={!isLoading}>
           <h2 className="font-montserrat text-2xl font-semibold">
-            {ticketInfo?.ticket?.title}
+            {data?.data?.ticket?.title}
           </h2>
         </Skeleton>
-        <div>
+        <div className="grid gap-3">
           <p>
             Raised at:{" "}
-            {moment(ticketInfo?.ticket?.createdAt).format("DD-MMM-YYYY hh:mm")}
+            {moment(data?.data?.ticket?.createdAt).format("DD-MMM-YYYY hh:mm")}
           </p>
         </div>
 
-        <div>
+        <div className="grid gap-3">
           <p>
-            Reported by: {ticketInfo?.ticket?.reporter?.firstName}{" "}
-            {ticketInfo?.ticket?.reporter?.lastName}
+            Reported by: {data?.data?.ticket?.reporter?.firstName}{" "}
+            {data?.data?.ticket?.reporter?.lastName}
           </p>
           <p>
             Assigned to:{" "}
-            {ticketInfo?.ticket?.assignee
-              ? ticketInfo?.ticket?.assignee?.firstName +
+            {data?.data?.ticket?.assignee
+              ? data?.data?.ticket?.assignee?.firstName +
                 " " +
-                ticketInfo?.ticket?.assignee?.lastName
+                data?.data?.ticket?.assignee?.lastName
               : "Unassigned"}
           </p>
           <div className="flex items-center">
             <p>Status: </p>
             <Chip
               color={
-                ticketInfo?.ticket?.status === "open"
+                data?.data?.ticket?.status === "open"
                   ? "danger"
-                  : ticketInfo?.ticket?.status === "in-progress"
+                  : data?.data?.ticket?.status === "in-progress"
                   ? "warning"
-                  : ticketInfo?.ticket?.status === "resolved"
+                  : data?.data?.ticket?.status === "resolved"
                   ? "success"
                   : "primary"
               }
               size="sm"
               variant="flat"
             >
-              {ticketInfo?.ticket?.status}
+              {data?.data?.ticket?.status}
             </Chip>
           </div>
           <div className="flex items-center">
@@ -164,16 +154,16 @@ export default function AdminTicketInfo() {
               size="sm"
               variant="flat"
               color={
-                ticketInfo?.ticket?.priority === "low"
+                data?.data?.ticket?.priority === "low"
                   ? "success"
-                  : ticketInfo?.ticket?.priority === "medium"
+                  : data?.data?.ticket?.priority === "medium"
                   ? "primary"
-                  : ticketInfo?.ticket?.priority === "high"
+                  : data?.data?.ticket?.priority === "high"
                   ? "warning"
                   : "danger"
               }
             >
-              {ticketInfo?.ticket?.priority}
+              {data?.data?.ticket?.priority}
             </Chip>
           </div>
         </div>
@@ -192,27 +182,82 @@ export default function AdminTicketInfo() {
 
       {/* ticket comments */}
       <div className="dark:bg-slate-900 dark:border border-white/5 rounded-2xl p-3 pt-2 bg-white flex flex-col gap-4 col-span-2 justify-end">
-        <Form method="POST" id="ask-ai" className="flex items-end gap-3">
-          <TextareaInput
-            variant="flat"
-            classNames={{
-              inputWrapper:
-                "bg-white dark:bg-slate-800 dark:border border-white/5",
-              base: "font-nunito",
-            }}
-            aria-labelledby="prompt"
-            name="prompt"
+        {/* comment list */}
+        <div
+          className="flex flex-col gap-4 h-[68vh] !overflow-y-auto vertical-scrollbar"
+          ref={commentsRef}
+        >
+          {data?.data?.comments?.length > 0 ? (
+            data?.data?.comments?.map((comment) => (
+              <ChatBubble
+                content={comment?.content}
+                time={moment(comment?.createdAt).format("DD-MM-YYYY hh:mm")}
+                author={
+                  comment?.author?.firstName + " " + comment?.author?.lastName
+                }
+              />
+            ))
+          ) : (
+            <div className="h-full w-full flex items-center justify-center">
+              <p className="text-xl font-nunito opacity-30">
+                No comments yet...
+              </p>
+            </div>
+          )}
+        </div>
+
+        {/* form */}
+        <Form method="POST" id="add-comment" className="flex items-end gap-3">
+          <TextInput
+            name="intent"
+            defaultValue="post-comment"
+            className="hidden"
           />
-          <Button
-            variant="solid"
-            color="primary"
-            type="submit"
-            form="ask-ai"
-            startContent={<LoginAnimatedIcon className="text-4xl" />}
-            className="font-nunito"
-          >
-            Submit
-          </Button>
+          <TextInput
+            name="author"
+            defaultValue={storedValue?.user?._id}
+            className="hidden"
+          />
+          <TextInput
+            name="token"
+            defaultValue={storedValue?.token}
+            className="hidden"
+          />
+          <TextInput
+            name="ticket"
+            defaultValue={ticket_id}
+            className="hidden"
+          />
+
+          <div className="w-full flex items-end gap-3">
+            {/* comment quill */}
+            <div className="pb-10 flex-1">
+              <TextareaInput
+                name="content"
+                value={content}
+                className="hidden"
+              />
+              <ReactQuill
+                required
+                value={content}
+                onChange={setContent}
+                className="h-24 !w-full !font-nunito"
+              />
+            </div>
+
+            {/* post comment button */}
+            <Button
+              variant="solid"
+              color="primary"
+              type="submit"
+              form="add-comment"
+              startContent={<LoginAnimatedIcon className="text-4xl" />}
+              className="font-nunito"
+              isLoading={navigation.state === "submitting"}
+            >
+              Comment
+            </Button>
+          </div>
         </Form>
       </div>
 
@@ -273,16 +318,14 @@ export const action: ActionFunction = async ({ request }) => {
   const formData = await request.formData();
   const formValues = Object.fromEntries(formData.entries());
 
-  if (formValues.intent === "raise-ticket") {
+  if (formValues.intent === "post-comment") {
     try {
       const response = await axios.post(
-        `${API_BASE_URL}/api/tickets/create`,
+        `${API_BASE_URL}/api/comments/create`,
         {
-          title: formValues.title,
-          description: formValues.description,
-          priority: formValues.priority,
-          reporter: formValues.reporter,
-          files: "[]",
+          ticket: formValues.ticket,
+          author: formValues.author,
+          content: formValues.content,
         },
         {
           headers: {

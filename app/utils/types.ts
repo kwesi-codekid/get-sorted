@@ -46,7 +46,7 @@ export interface TicketInterface {
 export interface CommentInterface {
   id: string; // Unique identifier for the comment
   ticketId: string; // ID of the ticket this comment belongs to
-  author: string; // ID or name of the person who wrote the comment
+  author: UserInterface; // ID or name of the person who wrote the comment
   content: string; // The content of the comment
   createdAt: Date; // Timestamp when the comment was created
 }

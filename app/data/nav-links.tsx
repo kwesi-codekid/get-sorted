@@ -11,9 +11,9 @@ export const adminNavLinks = [
   { label: "Tickets", path: "/admin/tickets", icon: <ClipboardIcon /> },
   { label: "FAQs", path: "/admin/faqs", icon: <ChatsOutlinedIcon /> },
   {
-    label: "Contributions",
-    path: "/admin/contributions",
-    icon: <UserSpeakingIcon />,
+    label: "Ask AI",
+    path: "/admin/ask-ai",
+    icon: <RobotOutlinedIcon />,
   },
 ];
 
